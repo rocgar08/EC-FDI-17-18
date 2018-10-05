@@ -1,0 +1,1708 @@
+
+pract2-parte1.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000078  0c100000  0c100000  00008000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .bss          00000004  0c100078  0c100078  00008078  2**2
+                  ALLOC
+  2 .text         000010d4  0c10007c  0c10007c  0000807c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  3 .debug_abbrev 0000037c  00000000  00000000  00009150  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_info   000007a3  00000000  00000000  000094cc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_line   000006f7  00000000  00000000  00009c6f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_macinfo 0001f6b0  00000000  00000000  0000a366  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_loc    00000420  00000000  00000000  00029a16  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_pubnames 000001c8  00000000  00000000  00029e36  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_pubtypes 000000e7  00000000  00000000  00029ffe  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_aranges 000000e0  00000000  00000000  0002a0e8  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_str    000002a0  00000000  00000000  0002a1c8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .comment      0000002a  00000000  00000000  0002a468  2**0
+                  CONTENTS, READONLY
+ 13 .ARM.attributes 00000030  00000000  00000000  0002a492  2**0
+                  CONTENTS, READONLY
+ 14 .debug_frame  00000380  00000000  00000000  0002a4c4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+0c10007c <D8Led_init>:
+	 							 DIGIT_4, DIGIT_5, DIGIT_6, DIGIT_7, 
+								 DIGIT_8, DIGIT_9, DIGIT_A, DIGIT_B,
+								 DIGIT_C, DIGIT_D, DIGIT_E, DIGIT_F };
+			  					  
+void D8Led_init(void)
+{
+ c10007c:	e1a0c00d 	mov	ip, sp
+ c100080:	e92dd800 	push	{fp, ip, lr, pc}
+ c100084:	e24cb004 	sub	fp, ip, #4
+    LED8ADDR = ~0 ;
+ c100088:	e3a03785 	mov	r3, #34865152	; 0x2140000
+ c10008c:	e3e02000 	mvn	r2, #0
+ c100090:	e5c32000 	strb	r2, [r3]
+}
+ c100094:	e24bd00c 	sub	sp, fp, #12
+ c100098:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c10009c:	e12fff1e 	bx	lr
+
+0c1000a0 <D8Led_segment>:
+
+void D8Led_segment(int value)
+{
+ c1000a0:	e1a0c00d 	mov	ip, sp
+ c1000a4:	e92dd800 	push	{fp, ip, lr, pc}
+ c1000a8:	e24cb004 	sub	fp, ip, #4
+ c1000ac:	e24dd008 	sub	sp, sp, #8
+ c1000b0:	e50b0010 	str	r0, [fp, #-16]
+	if( (value >= 0) && (value < 8) ){
+ c1000b4:	e51b3010 	ldr	r3, [fp, #-16]
+ c1000b8:	e3530000 	cmp	r3, #0
+ c1000bc:	ba00000a 	blt	c1000ec <D8Led_segment+0x4c>
+ c1000c0:	e51b3010 	ldr	r3, [fp, #-16]
+ c1000c4:	e3530007 	cmp	r3, #7
+ c1000c8:	ca000007 	bgt	c1000ec <D8Led_segment+0x4c>
+		//COMPLETAR: debemos escribir en el display (LED8ADDR) el valor
+		//correcto para que se ilumine el segmento que está en la posición
+		//value del array Segments. Hay que tener en cuenta que el display
+		//usa lógica invertida (0 enciende, 1 apaga)
+		LED8ADDR=~Segments[value];
+ c1000cc:	e3a03785 	mov	r3, #34865152	; 0x2140000
+ c1000d0:	e59f2020 	ldr	r2, [pc, #32]	; c1000f8 <D8Led_segment+0x58>
+ c1000d4:	e51b1010 	ldr	r1, [fp, #-16]
+ c1000d8:	e7922101 	ldr	r2, [r2, r1, lsl #2]
+ c1000dc:	e20220ff 	and	r2, r2, #255	; 0xff
+ c1000e0:	e1e02002 	mvn	r2, r2
+ c1000e4:	e20220ff 	and	r2, r2, #255	; 0xff
+ c1000e8:	e5c32000 	strb	r2, [r3]
+	}
+
+}
+ c1000ec:	e24bd00c 	sub	sp, fp, #12
+ c1000f0:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c1000f4:	e12fff1e 	bx	lr
+ c1000f8:	0c100000 	.word	0x0c100000
+
+0c1000fc <D8Led_digit>:
+
+void D8Led_digit(int value)
+{
+ c1000fc:	e1a0c00d 	mov	ip, sp
+ c100100:	e92dd800 	push	{fp, ip, lr, pc}
+ c100104:	e24cb004 	sub	fp, ip, #4
+ c100108:	e24dd008 	sub	sp, sp, #8
+ c10010c:	e50b0010 	str	r0, [fp, #-16]
+	if( (value >= 0) && (value < 16) ){
+ c100110:	e51b3010 	ldr	r3, [fp, #-16]
+ c100114:	e3530000 	cmp	r3, #0
+ c100118:	ba00000a 	blt	c100148 <D8Led_digit+0x4c>
+ c10011c:	e51b3010 	ldr	r3, [fp, #-16]
+ c100120:	e353000f 	cmp	r3, #15
+ c100124:	ca000007 	bgt	c100148 <D8Led_digit+0x4c>
+		LED8ADDR=~Digits[value];
+ c100128:	e3a03785 	mov	r3, #34865152	; 0x2140000
+ c10012c:	e59f2020 	ldr	r2, [pc, #32]	; c100154 <D8Led_digit+0x58>
+ c100130:	e51b1010 	ldr	r1, [fp, #-16]
+ c100134:	e7922101 	ldr	r2, [r2, r1, lsl #2]
+ c100138:	e20220ff 	and	r2, r2, #255	; 0xff
+ c10013c:	e1e02002 	mvn	r2, r2
+ c100140:	e20220ff 	and	r2, r2, #255	; 0xff
+ c100144:	e5c32000 	strb	r2, [r3]
+		// correcto para que se ilumine el dígito que está en la posición
+		//value del array Digits. Hay que tener en cuenta que el display
+		//usa lógica invertida (0 enciende, 1 apaga)
+	}
+
+}
+ c100148:	e24bd00c 	sub	sp, fp, #12
+ c10014c:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100150:	e12fff1e 	bx	lr
+ c100154:	0c100020 	.word	0x0c100020
+
+0c100158 <read_button>:
+#include "button.h"
+#include "leds.h"
+#include "gpio.h"
+
+unsigned int read_button(void)
+{
+ c100158:	e1a0c00d 	mov	ip, sp
+ c10015c:	e92dd800 	push	{fp, ip, lr, pc}
+ c100160:	e24cb004 	sub	fp, ip, #4
+ c100164:	e24dd008 	sub	sp, sp, #8
+	unsigned int buttons = 0;
+ c100168:	e3a03000 	mov	r3, #0
+ c10016c:	e50b3010 	str	r3, [fp, #-16]
+	//COMPLETAR utilizando el interfaz del puerto G de gpio.h
+	//tiene que leer los pines 6 y 7 del puerto G (portG_read) y devolver en la variable buttons
+	//un 0 si no hay ningún botón pulsado
+	//1 si se a pulsado el botón 1
+	//2 si se a pulsado el botón 2
+	portG_read(6, &val);
+ c100170:	e24b3011 	sub	r3, fp, #17
+ c100174:	e3a00006 	mov	r0, #6
+ c100178:	e1a01003 	mov	r1, r3
+ c10017c:	eb00014a 	bl	c1006ac <portG_read>
+	if(val == LOW) buttons= BUT1;
+ c100180:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c100184:	e3530000 	cmp	r3, #0
+ c100188:	1a000001 	bne	c100194 <read_button+0x3c>
+ c10018c:	e3a03001 	mov	r3, #1
+ c100190:	e50b3010 	str	r3, [fp, #-16]
+	portG_read(7, &val);
+ c100194:	e24b3011 	sub	r3, fp, #17
+ c100198:	e3a00007 	mov	r0, #7
+ c10019c:	e1a01003 	mov	r1, r3
+ c1001a0:	eb000141 	bl	c1006ac <portG_read>
+	if(val == LOW) buttons= BUT2;
+ c1001a4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c1001a8:	e3530000 	cmp	r3, #0
+ c1001ac:	1a000001 	bne	c1001b8 <read_button+0x60>
+ c1001b0:	e3a03002 	mov	r3, #2
+ c1001b4:	e50b3010 	str	r3, [fp, #-16]
+	return buttons;
+ c1001b8:	e51b3010 	ldr	r3, [fp, #-16]
+}
+ c1001bc:	e1a00003 	mov	r0, r3
+ c1001c0:	e24bd00c 	sub	sp, fp, #12
+ c1001c4:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c1001c8:	e12fff1e 	bx	lr
+
+0c1001cc <portB_conf>:
+#include "gpio.h"
+
+/* Port B interface implementation */
+
+int portB_conf(int pin, enum port_mode mode)
+{
+ c1001cc:	e1a0c00d 	mov	ip, sp
+ c1001d0:	e92dd800 	push	{fp, ip, lr, pc}
+ c1001d4:	e24cb004 	sub	fp, ip, #4
+ c1001d8:	e24dd010 	sub	sp, sp, #16
+ c1001dc:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c1001e0:	e1a03001 	mov	r3, r1
+ c1001e4:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
+	int ret = 0;
+ c1001e8:	e3a03000 	mov	r3, #0
+ c1001ec:	e50b3010 	str	r3, [fp, #-16]
+	if (pin < 0 || pin > 10)
+ c1001f0:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c1001f4:	e3530000 	cmp	r3, #0
+ c1001f8:	ba000002 	blt	c100208 <portB_conf+0x3c>
+ c1001fc:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100200:	e353000a 	cmp	r3, #10
+ c100204:	da000001 	ble	c100210 <portB_conf+0x44>
+		return -1;
+ c100208:	e3e03000 	mvn	r3, #0
+ c10020c:	ea00001b 	b	c100280 <portB_conf+0xb4>
+
+	if (mode == SIGOUT){
+ c100210:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c100214:	e3530002 	cmp	r3, #2
+ c100218:	1a000008 	bne	c100240 <portB_conf+0x74>
+		rPCONB|=(0x1<<pin);
+ c10021c:	e59f306c 	ldr	r3, [pc, #108]	; c100290 <portB_conf+0xc4>
+ c100220:	e59f2068 	ldr	r2, [pc, #104]	; c100290 <portB_conf+0xc4>
+ c100224:	e5921000 	ldr	r1, [r2]
+ c100228:	e3a00001 	mov	r0, #1
+ c10022c:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c100230:	e1a02210 	lsl	r2, r0, r2
+ c100234:	e1812002 	orr	r2, r1, r2
+ c100238:	e5832000 	str	r2, [r3]
+ c10023c:	ea00000e 	b	c10027c <portB_conf+0xb0>
+		//COMPLETAR: Configurar el pin del puerto B
+		//para que salga la senal correspondiente del controlador de memoria
+
+	}
+	else if (mode == OUTPUT){
+ c100240:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c100244:	e3530001 	cmp	r3, #1
+ c100248:	1a000009 	bne	c100274 <portB_conf+0xa8>
+		rPCONB&=~(0x1<<pin);
+ c10024c:	e59f303c 	ldr	r3, [pc, #60]	; c100290 <portB_conf+0xc4>
+ c100250:	e59f2038 	ldr	r2, [pc, #56]	; c100290 <portB_conf+0xc4>
+ c100254:	e5921000 	ldr	r1, [r2]
+ c100258:	e3a00001 	mov	r0, #1
+ c10025c:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c100260:	e1a02210 	lsl	r2, r0, r2
+ c100264:	e1e02002 	mvn	r2, r2
+ c100268:	e0012002 	and	r2, r1, r2
+ c10026c:	e5832000 	str	r2, [r3]
+ c100270:	ea000001 	b	c10027c <portB_conf+0xb0>
+		///COMPLETAR: Configurar el pin del puerto B
+		//para que sea de salida
+
+	}
+	else
+		ret = -1;
+ c100274:	e3e03000 	mvn	r3, #0
+ c100278:	e50b3010 	str	r3, [fp, #-16]
+
+	return ret;
+ c10027c:	e51b3010 	ldr	r3, [fp, #-16]
+}
+ c100280:	e1a00003 	mov	r0, r3
+ c100284:	e24bd00c 	sub	sp, fp, #12
+ c100288:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c10028c:	e12fff1e 	bx	lr
+ c100290:	01d20008 	.word	0x01d20008
+
+0c100294 <portB_write>:
+
+int portB_write(int pin, enum digital val)
+{
+ c100294:	e1a0c00d 	mov	ip, sp
+ c100298:	e92dd800 	push	{fp, ip, lr, pc}
+ c10029c:	e24cb004 	sub	fp, ip, #4
+ c1002a0:	e24dd008 	sub	sp, sp, #8
+ c1002a4:	e50b0010 	str	r0, [fp, #-16]
+ c1002a8:	e1a03001 	mov	r3, r1
+ c1002ac:	e54b3011 	strb	r3, [fp, #-17]	; 0xffffffef
+	if (pin < 0 || pin > 10)
+ c1002b0:	e51b3010 	ldr	r3, [fp, #-16]
+ c1002b4:	e3530000 	cmp	r3, #0
+ c1002b8:	ba000002 	blt	c1002c8 <portB_write+0x34>
+ c1002bc:	e51b3010 	ldr	r3, [fp, #-16]
+ c1002c0:	e353000a 	cmp	r3, #10
+ c1002c4:	da000001 	ble	c1002d0 <portB_write+0x3c>
+		return -1;
+ c1002c8:	e3e03000 	mvn	r3, #0
+ c1002cc:	ea00001a 	b	c10033c <portB_write+0xa8>
+
+	if (val < 0 || val > 1)
+ c1002d0:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c1002d4:	e3530001 	cmp	r3, #1
+ c1002d8:	9a000001 	bls	c1002e4 <portB_write+0x50>
+		return -1;
+ c1002dc:	e3e03000 	mvn	r3, #0
+ c1002e0:	ea000015 	b	c10033c <portB_write+0xa8>
+
+	if (val){
+ c1002e4:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c1002e8:	e3530000 	cmp	r3, #0
+ c1002ec:	0a000008 	beq	c100314 <portB_write+0x80>
+		//COMPLETAR: poner en el pin del puerto B
+		//el valor adecuado para que el led se apague
+		rPDATB |=(0x1<<pin);
+ c1002f0:	e59f3054 	ldr	r3, [pc, #84]	; c10034c <portB_write+0xb8>
+ c1002f4:	e59f2050 	ldr	r2, [pc, #80]	; c10034c <portB_write+0xb8>
+ c1002f8:	e5921000 	ldr	r1, [r2]
+ c1002fc:	e3a00001 	mov	r0, #1
+ c100300:	e51b2010 	ldr	r2, [fp, #-16]
+ c100304:	e1a02210 	lsl	r2, r0, r2
+ c100308:	e1812002 	orr	r2, r1, r2
+ c10030c:	e5832000 	str	r2, [r3]
+ c100310:	ea000008 	b	c100338 <portB_write+0xa4>
+
+	}
+	else{
+		rPDATB &=~(0x1<<pin);
+ c100314:	e59f3030 	ldr	r3, [pc, #48]	; c10034c <portB_write+0xb8>
+ c100318:	e59f202c 	ldr	r2, [pc, #44]	; c10034c <portB_write+0xb8>
+ c10031c:	e5921000 	ldr	r1, [r2]
+ c100320:	e3a00001 	mov	r0, #1
+ c100324:	e51b2010 	ldr	r2, [fp, #-16]
+ c100328:	e1a02210 	lsl	r2, r0, r2
+ c10032c:	e1e02002 	mvn	r2, r2
+ c100330:	e0012002 	and	r2, r1, r2
+ c100334:	e5832000 	str	r2, [r3]
+		//COMPLETAR: poner en el pin del puerto B
+		//el valor adecuado para que el led se encienda
+
+
+	}
+	return 0;
+ c100338:	e3a03000 	mov	r3, #0
+}
+ c10033c:	e1a00003 	mov	r0, r3
+ c100340:	e24bd00c 	sub	sp, fp, #12
+ c100344:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100348:	e12fff1e 	bx	lr
+ c10034c:	01d2000c 	.word	0x01d2000c
+
+0c100350 <portG_conf>:
+
+/* Port G interface implementation */
+
+int portG_conf(int pin, enum port_mode mode)
+{
+ c100350:	e1a0c00d 	mov	ip, sp
+ c100354:	e92dd800 	push	{fp, ip, lr, pc}
+ c100358:	e24cb004 	sub	fp, ip, #4
+ c10035c:	e24dd010 	sub	sp, sp, #16
+ c100360:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c100364:	e1a03001 	mov	r3, r1
+ c100368:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
+	//La variable pos indica el primer bit del registro de control del puerto G que corresponde al pin
+	int pos  = pin*2;
+ c10036c:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100370:	e1a03083 	lsl	r3, r3, #1
+ c100374:	e50b3010 	str	r3, [fp, #-16]
+
+	if (pin < 0 || pin > 7)
+ c100378:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c10037c:	e3530000 	cmp	r3, #0
+ c100380:	ba000002 	blt	c100390 <portG_conf+0x40>
+ c100384:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100388:	e3530007 	cmp	r3, #7
+ c10038c:	da000001 	ble	c100398 <portG_conf+0x48>
+		return -1;
+ c100390:	e3e03000 	mvn	r3, #0
+ c100394:	ea00004a 	b	c1004c4 <portG_conf+0x174>
+
+	switch (mode) {
+ c100398:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c10039c:	e3530003 	cmp	r3, #3
+ c1003a0:	979ff103 	ldrls	pc, [pc, r3, lsl #2]
+ c1003a4:	ea000043 	b	c1004b8 <portG_conf+0x168>
+ c1003a8:	0c1003b8 	.word	0x0c1003b8
+ c1003ac:	0c1003e0 	.word	0x0c1003e0
+ c1003b0:	0c100428 	.word	0x0c100428
+ c1003b4:	0c100470 	.word	0x0c100470
+		case INPUT:
+
+			//COMPLETAR: Configurar el pin del puerto G
+			//para que sea de entrada
+			rPCONG &= ~(0x3<<pos);
+ c1003b8:	e59f3114 	ldr	r3, [pc, #276]	; c1004d4 <portG_conf+0x184>
+ c1003bc:	e59f2110 	ldr	r2, [pc, #272]	; c1004d4 <portG_conf+0x184>
+ c1003c0:	e5921000 	ldr	r1, [r2]
+ c1003c4:	e3a00003 	mov	r0, #3
+ c1003c8:	e51b2010 	ldr	r2, [fp, #-16]
+ c1003cc:	e1a02210 	lsl	r2, r0, r2
+ c1003d0:	e1e02002 	mvn	r2, r2
+ c1003d4:	e0012002 	and	r2, r1, r2
+ c1003d8:	e5832000 	str	r2, [r3]
+
+			break;
+ c1003dc:	ea000037 	b	c1004c0 <portG_conf+0x170>
+		case OUTPUT:
+			//COMPLETAR: Configurar el pin del puerto G
+			//para que sea de salida
+			rPCONG &= ~(0x3<<pos);
+ c1003e0:	e59f30ec 	ldr	r3, [pc, #236]	; c1004d4 <portG_conf+0x184>
+ c1003e4:	e59f20e8 	ldr	r2, [pc, #232]	; c1004d4 <portG_conf+0x184>
+ c1003e8:	e5921000 	ldr	r1, [r2]
+ c1003ec:	e3a00003 	mov	r0, #3
+ c1003f0:	e51b2010 	ldr	r2, [fp, #-16]
+ c1003f4:	e1a02210 	lsl	r2, r0, r2
+ c1003f8:	e1e02002 	mvn	r2, r2
+ c1003fc:	e0012002 	and	r2, r1, r2
+ c100400:	e5832000 	str	r2, [r3]
+			rPCONG |= (0x1<<pos);
+ c100404:	e59f30c8 	ldr	r3, [pc, #200]	; c1004d4 <portG_conf+0x184>
+ c100408:	e59f20c4 	ldr	r2, [pc, #196]	; c1004d4 <portG_conf+0x184>
+ c10040c:	e5921000 	ldr	r1, [r2]
+ c100410:	e3a00001 	mov	r0, #1
+ c100414:	e51b2010 	ldr	r2, [fp, #-16]
+ c100418:	e1a02210 	lsl	r2, r0, r2
+ c10041c:	e1812002 	orr	r2, r1, r2
+ c100420:	e5832000 	str	r2, [r3]
+
+			break;
+ c100424:	ea000025 	b	c1004c0 <portG_conf+0x170>
+		case SIGOUT:
+			//COMPLETAR: Configurar el pin del puerto G
+			//para que salga la señal interna correspondiente
+			rPCONG &= ~(0x3<<pos);
+ c100428:	e59f30a4 	ldr	r3, [pc, #164]	; c1004d4 <portG_conf+0x184>
+ c10042c:	e59f20a0 	ldr	r2, [pc, #160]	; c1004d4 <portG_conf+0x184>
+ c100430:	e5921000 	ldr	r1, [r2]
+ c100434:	e3a00003 	mov	r0, #3
+ c100438:	e51b2010 	ldr	r2, [fp, #-16]
+ c10043c:	e1a02210 	lsl	r2, r0, r2
+ c100440:	e1e02002 	mvn	r2, r2
+ c100444:	e0012002 	and	r2, r1, r2
+ c100448:	e5832000 	str	r2, [r3]
+			rPCONG|= (0x2<<pos);
+ c10044c:	e59f3080 	ldr	r3, [pc, #128]	; c1004d4 <portG_conf+0x184>
+ c100450:	e59f207c 	ldr	r2, [pc, #124]	; c1004d4 <portG_conf+0x184>
+ c100454:	e5921000 	ldr	r1, [r2]
+ c100458:	e3a00002 	mov	r0, #2
+ c10045c:	e51b2010 	ldr	r2, [fp, #-16]
+ c100460:	e1a02210 	lsl	r2, r0, r2
+ c100464:	e1812002 	orr	r2, r1, r2
+ c100468:	e5832000 	str	r2, [r3]
+
+			break;
+ c10046c:	ea000013 	b	c1004c0 <portG_conf+0x170>
+		case EINT:
+			//COMPLETAR: Configurar el pin del puerto G
+			//para habilitar la generación de interrupciones externas
+			rPCONG &= ~(0x3 << pos);
+ c100470:	e59f305c 	ldr	r3, [pc, #92]	; c1004d4 <portG_conf+0x184>
+ c100474:	e59f2058 	ldr	r2, [pc, #88]	; c1004d4 <portG_conf+0x184>
+ c100478:	e5921000 	ldr	r1, [r2]
+ c10047c:	e3a00003 	mov	r0, #3
+ c100480:	e51b2010 	ldr	r2, [fp, #-16]
+ c100484:	e1a02210 	lsl	r2, r0, r2
+ c100488:	e1e02002 	mvn	r2, r2
+ c10048c:	e0012002 	and	r2, r1, r2
+ c100490:	e5832000 	str	r2, [r3]
+			rPCONG |= (0x3 << pos);
+ c100494:	e59f3038 	ldr	r3, [pc, #56]	; c1004d4 <portG_conf+0x184>
+ c100498:	e59f2034 	ldr	r2, [pc, #52]	; c1004d4 <portG_conf+0x184>
+ c10049c:	e5921000 	ldr	r1, [r2]
+ c1004a0:	e3a00003 	mov	r0, #3
+ c1004a4:	e51b2010 	ldr	r2, [fp, #-16]
+ c1004a8:	e1a02210 	lsl	r2, r0, r2
+ c1004ac:	e1812002 	orr	r2, r1, r2
+ c1004b0:	e5832000 	str	r2, [r3]
+
+			break;
+ c1004b4:	ea000001 	b	c1004c0 <portG_conf+0x170>
+		default:
+			return -1;
+ c1004b8:	e3e03000 	mvn	r3, #0
+ c1004bc:	ea000000 	b	c1004c4 <portG_conf+0x174>
+	}
+
+	return 0;
+ c1004c0:	e3a03000 	mov	r3, #0
+}
+ c1004c4:	e1a00003 	mov	r0, r3
+ c1004c8:	e24bd00c 	sub	sp, fp, #12
+ c1004cc:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c1004d0:	e12fff1e 	bx	lr
+ c1004d4:	01d20040 	.word	0x01d20040
+
+0c1004d8 <portG_eint_trig>:
+
+int portG_eint_trig(int pin, enum trigger trig)
+{
+ c1004d8:	e1a0c00d 	mov	ip, sp
+ c1004dc:	e92dd800 	push	{fp, ip, lr, pc}
+ c1004e0:	e24cb004 	sub	fp, ip, #4
+ c1004e4:	e24dd010 	sub	sp, sp, #16
+ c1004e8:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c1004ec:	e1a03001 	mov	r3, r1
+ c1004f0:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
+	//La variable pos indica el primer bit del registro EXTINT del puerto G que corresponde al pin
+	int pos = pin*4;
+ c1004f4:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c1004f8:	e1a03103 	lsl	r3, r3, #2
+ c1004fc:	e50b3010 	str	r3, [fp, #-16]
+
+	if (pin < 0 || pin > 7)
+ c100500:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100504:	e3530000 	cmp	r3, #0
+ c100508:	ba000002 	blt	c100518 <portG_eint_trig+0x40>
+ c10050c:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100510:	e3530007 	cmp	r3, #7
+ c100514:	da000001 	ble	c100520 <portG_eint_trig+0x48>
+		return -1;
+ c100518:	e3e03000 	mvn	r3, #0
+ c10051c:	ea00005d 	b	c100698 <portG_eint_trig+0x1c0>
+
+	switch (trig) {
+ c100520:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c100524:	e3530004 	cmp	r3, #4
+ c100528:	979ff103 	ldrls	pc, [pc, r3, lsl #2]
+ c10052c:	ea000056 	b	c10068c <portG_eint_trig+0x1b4>
+ c100530:	0c100544 	.word	0x0c100544
+ c100534:	0c10056c 	.word	0x0c10056c
+ c100538:	0c1005b4 	.word	0x0c1005b4
+ c10053c:	0c1005fc 	.word	0x0c1005fc
+ c100540:	0c100644 	.word	0x0c100644
+		case LLOW:
+			// COMPLETAR: configurar el pin del puerto G para que genere interrupciones externas por nivel bajo
+			rEXTINT &= ~(0x7<<pos);
+ c100544:	e59f315c 	ldr	r3, [pc, #348]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100548:	e59f2158 	ldr	r2, [pc, #344]	; c1006a8 <portG_eint_trig+0x1d0>
+ c10054c:	e5921000 	ldr	r1, [r2]
+ c100550:	e3a00007 	mov	r0, #7
+ c100554:	e51b2010 	ldr	r2, [fp, #-16]
+ c100558:	e1a02210 	lsl	r2, r0, r2
+ c10055c:	e1e02002 	mvn	r2, r2
+ c100560:	e0012002 	and	r2, r1, r2
+ c100564:	e5832000 	str	r2, [r3]
+			break;
+ c100568:	ea000049 	b	c100694 <portG_eint_trig+0x1bc>
+		case LHIGH:
+			// COMPLETAR: configurar el pin del puerto G para que genere interrupciones externas por nivel alto
+			rEXTINT &= ~(0x7<<pos);
+ c10056c:	e59f3134 	ldr	r3, [pc, #308]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100570:	e59f2130 	ldr	r2, [pc, #304]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100574:	e5921000 	ldr	r1, [r2]
+ c100578:	e3a00007 	mov	r0, #7
+ c10057c:	e51b2010 	ldr	r2, [fp, #-16]
+ c100580:	e1a02210 	lsl	r2, r0, r2
+ c100584:	e1e02002 	mvn	r2, r2
+ c100588:	e0012002 	and	r2, r1, r2
+ c10058c:	e5832000 	str	r2, [r3]
+			rEXTINT|= (0x1<<pos);
+ c100590:	e59f3110 	ldr	r3, [pc, #272]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100594:	e59f210c 	ldr	r2, [pc, #268]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100598:	e5921000 	ldr	r1, [r2]
+ c10059c:	e3a00001 	mov	r0, #1
+ c1005a0:	e51b2010 	ldr	r2, [fp, #-16]
+ c1005a4:	e1a02210 	lsl	r2, r0, r2
+ c1005a8:	e1812002 	orr	r2, r1, r2
+ c1005ac:	e5832000 	str	r2, [r3]
+
+			break;
+ c1005b0:	ea000037 	b	c100694 <portG_eint_trig+0x1bc>
+		case FALLING:
+			// COMPLETAR: configurar el pin del puerto G para que el pin genere interrupciones externas por flanco de bajada
+			rEXTINT &= ~(0x7<<pos);
+ c1005b4:	e59f30ec 	ldr	r3, [pc, #236]	; c1006a8 <portG_eint_trig+0x1d0>
+ c1005b8:	e59f20e8 	ldr	r2, [pc, #232]	; c1006a8 <portG_eint_trig+0x1d0>
+ c1005bc:	e5921000 	ldr	r1, [r2]
+ c1005c0:	e3a00007 	mov	r0, #7
+ c1005c4:	e51b2010 	ldr	r2, [fp, #-16]
+ c1005c8:	e1a02210 	lsl	r2, r0, r2
+ c1005cc:	e1e02002 	mvn	r2, r2
+ c1005d0:	e0012002 	and	r2, r1, r2
+ c1005d4:	e5832000 	str	r2, [r3]
+			rEXTINT|= (0x2<<pos);
+ c1005d8:	e59f30c8 	ldr	r3, [pc, #200]	; c1006a8 <portG_eint_trig+0x1d0>
+ c1005dc:	e59f20c4 	ldr	r2, [pc, #196]	; c1006a8 <portG_eint_trig+0x1d0>
+ c1005e0:	e5921000 	ldr	r1, [r2]
+ c1005e4:	e3a00002 	mov	r0, #2
+ c1005e8:	e51b2010 	ldr	r2, [fp, #-16]
+ c1005ec:	e1a02210 	lsl	r2, r0, r2
+ c1005f0:	e1812002 	orr	r2, r1, r2
+ c1005f4:	e5832000 	str	r2, [r3]
+
+			break;
+ c1005f8:	ea000025 	b	c100694 <portG_eint_trig+0x1bc>
+		case RISING:
+			// COMPLETAR: configurar el pin del puerto G para que el pin genere interrupciones externas por flanco de subida
+			rEXTINT &= ~(0x7<<pos);
+ c1005fc:	e59f30a4 	ldr	r3, [pc, #164]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100600:	e59f20a0 	ldr	r2, [pc, #160]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100604:	e5921000 	ldr	r1, [r2]
+ c100608:	e3a00007 	mov	r0, #7
+ c10060c:	e51b2010 	ldr	r2, [fp, #-16]
+ c100610:	e1a02210 	lsl	r2, r0, r2
+ c100614:	e1e02002 	mvn	r2, r2
+ c100618:	e0012002 	and	r2, r1, r2
+ c10061c:	e5832000 	str	r2, [r3]
+			rEXTINT |= (0x4<<pos);
+ c100620:	e59f3080 	ldr	r3, [pc, #128]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100624:	e59f207c 	ldr	r2, [pc, #124]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100628:	e5921000 	ldr	r1, [r2]
+ c10062c:	e3a00004 	mov	r0, #4
+ c100630:	e51b2010 	ldr	r2, [fp, #-16]
+ c100634:	e1a02210 	lsl	r2, r0, r2
+ c100638:	e1812002 	orr	r2, r1, r2
+ c10063c:	e5832000 	str	r2, [r3]
+
+			break;
+ c100640:	ea000013 	b	c100694 <portG_eint_trig+0x1bc>
+		case EDGE:
+			// COMPLETAR: configurar el pin del puerto G para que el pin genere interrupciones externas por cualquier flanco
+			rEXTINT &= ~(0x7<<pos);
+ c100644:	e59f305c 	ldr	r3, [pc, #92]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100648:	e59f2058 	ldr	r2, [pc, #88]	; c1006a8 <portG_eint_trig+0x1d0>
+ c10064c:	e5921000 	ldr	r1, [r2]
+ c100650:	e3a00007 	mov	r0, #7
+ c100654:	e51b2010 	ldr	r2, [fp, #-16]
+ c100658:	e1a02210 	lsl	r2, r0, r2
+ c10065c:	e1e02002 	mvn	r2, r2
+ c100660:	e0012002 	and	r2, r1, r2
+ c100664:	e5832000 	str	r2, [r3]
+			rEXTINT |= (0x6<<pos);
+ c100668:	e59f3038 	ldr	r3, [pc, #56]	; c1006a8 <portG_eint_trig+0x1d0>
+ c10066c:	e59f2034 	ldr	r2, [pc, #52]	; c1006a8 <portG_eint_trig+0x1d0>
+ c100670:	e5921000 	ldr	r1, [r2]
+ c100674:	e3a00006 	mov	r0, #6
+ c100678:	e51b2010 	ldr	r2, [fp, #-16]
+ c10067c:	e1a02210 	lsl	r2, r0, r2
+ c100680:	e1812002 	orr	r2, r1, r2
+ c100684:	e5832000 	str	r2, [r3]
+
+			break;
+ c100688:	ea000001 	b	c100694 <portG_eint_trig+0x1bc>
+		default:
+			return -1;
+ c10068c:	e3e03000 	mvn	r3, #0
+ c100690:	ea000000 	b	c100698 <portG_eint_trig+0x1c0>
+	}
+	return 0;
+ c100694:	e3a03000 	mov	r3, #0
+}
+ c100698:	e1a00003 	mov	r0, r3
+ c10069c:	e24bd00c 	sub	sp, fp, #12
+ c1006a0:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c1006a4:	e12fff1e 	bx	lr
+ c1006a8:	01d20050 	.word	0x01d20050
+
+0c1006ac <portG_read>:
+
+
+int portG_read(int pin, enum digital* val)
+{
+ c1006ac:	e1a0c00d 	mov	ip, sp
+ c1006b0:	e92dd800 	push	{fp, ip, lr, pc}
+ c1006b4:	e24cb004 	sub	fp, ip, #4
+ c1006b8:	e24dd010 	sub	sp, sp, #16
+ c1006bc:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c1006c0:	e50b101c 	str	r1, [fp, #-28]	; 0xffffffe4
+	int pos = pin*2;
+ c1006c4:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c1006c8:	e1a03083 	lsl	r3, r3, #1
+ c1006cc:	e50b3010 	str	r3, [fp, #-16]
+
+	if (pin < 0 || pin > 7)
+ c1006d0:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c1006d4:	e3530000 	cmp	r3, #0
+ c1006d8:	ba000002 	blt	c1006e8 <portG_read+0x3c>
+ c1006dc:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c1006e0:	e3530007 	cmp	r3, #7
+ c1006e4:	da000001 	ble	c1006f0 <portG_read+0x44>
+		return -1;
+ c1006e8:	e3e03000 	mvn	r3, #0
+ c1006ec:	ea000019 	b	c100758 <portG_read+0xac>
+
+	if (rPCONG & (0x3 << pos))
+ c1006f0:	e59f3070 	ldr	r3, [pc, #112]	; c100768 <portG_read+0xbc>
+ c1006f4:	e5932000 	ldr	r2, [r3]
+ c1006f8:	e3a01003 	mov	r1, #3
+ c1006fc:	e51b3010 	ldr	r3, [fp, #-16]
+ c100700:	e1a03311 	lsl	r3, r1, r3
+ c100704:	e0023003 	and	r3, r2, r3
+ c100708:	e3530000 	cmp	r3, #0
+ c10070c:	0a000001 	beq	c100718 <portG_read+0x6c>
+		return -1;
+ c100710:	e3e03000 	mvn	r3, #0
+ c100714:	ea00000f 	b	c100758 <portG_read+0xac>
+	//COMPLETAR la condicion del if: comprobar si el pin del registro de datos del puerto G es un 1)
+
+		if (rPDATG & (0x1 << pin))
+ c100718:	e59f304c 	ldr	r3, [pc, #76]	; c10076c <portG_read+0xc0>
+ c10071c:	e5932000 	ldr	r2, [r3]
+ c100720:	e3a01001 	mov	r1, #1
+ c100724:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100728:	e1a03311 	lsl	r3, r1, r3
+ c10072c:	e0023003 	and	r3, r2, r3
+ c100730:	e3530000 	cmp	r3, #0
+ c100734:	0a000003 	beq	c100748 <portG_read+0x9c>
+			*val=HIGH;
+ c100738:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c10073c:	e3a02001 	mov	r2, #1
+ c100740:	e5c32000 	strb	r2, [r3]
+ c100744:	ea000002 	b	c100754 <portG_read+0xa8>
+		else
+			*val=LOW;
+ c100748:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c10074c:	e3a02000 	mov	r2, #0
+ c100750:	e5c32000 	strb	r2, [r3]
+
+	return 0;
+ c100754:	e3a03000 	mov	r3, #0
+}
+ c100758:	e1a00003 	mov	r0, r3
+ c10075c:	e24bd00c 	sub	sp, fp, #12
+ c100760:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100764:	e12fff1e 	bx	lr
+ c100768:	01d20040 	.word	0x01d20040
+ c10076c:	01d20044 	.word	0x01d20044
+
+0c100770 <portG_conf_pup>:
+
+int portG_conf_pup(int pin, enum enable st)
+{
+ c100770:	e1a0c00d 	mov	ip, sp
+ c100774:	e92dd800 	push	{fp, ip, lr, pc}
+ c100778:	e24cb004 	sub	fp, ip, #4
+ c10077c:	e24dd008 	sub	sp, sp, #8
+ c100780:	e50b0010 	str	r0, [fp, #-16]
+ c100784:	e1a03001 	mov	r3, r1
+ c100788:	e54b3011 	strb	r3, [fp, #-17]	; 0xffffffef
+	if (pin < 0 || pin > 7)
+ c10078c:	e51b3010 	ldr	r3, [fp, #-16]
+ c100790:	e3530000 	cmp	r3, #0
+ c100794:	ba000002 	blt	c1007a4 <portG_conf_pup+0x34>
+ c100798:	e51b3010 	ldr	r3, [fp, #-16]
+ c10079c:	e3530007 	cmp	r3, #7
+ c1007a0:	da000001 	ble	c1007ac <portG_conf_pup+0x3c>
+		return -1;
+ c1007a4:	e3e03000 	mvn	r3, #0
+ c1007a8:	ea00001d 	b	c100824 <portG_conf_pup+0xb4>
+
+	if (st != ENABLE && st != DISABLE)
+ c1007ac:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c1007b0:	e3530001 	cmp	r3, #1
+ c1007b4:	0a000004 	beq	c1007cc <portG_conf_pup+0x5c>
+ c1007b8:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c1007bc:	e3530000 	cmp	r3, #0
+ c1007c0:	0a000001 	beq	c1007cc <portG_conf_pup+0x5c>
+		return -1;
+ c1007c4:	e3e03000 	mvn	r3, #0
+ c1007c8:	ea000015 	b	c100824 <portG_conf_pup+0xb4>
+
+	if (st == ENABLE){
+ c1007cc:	e55b3011 	ldrb	r3, [fp, #-17]	; 0xffffffef
+ c1007d0:	e3530001 	cmp	r3, #1
+ c1007d4:	1a000009 	bne	c100800 <portG_conf_pup+0x90>
+		rPUPG&=~(0x1<<pin);
+ c1007d8:	e59f3054 	ldr	r3, [pc, #84]	; c100834 <portG_conf_pup+0xc4>
+ c1007dc:	e59f2050 	ldr	r2, [pc, #80]	; c100834 <portG_conf_pup+0xc4>
+ c1007e0:	e5921000 	ldr	r1, [r2]
+ c1007e4:	e3a00001 	mov	r0, #1
+ c1007e8:	e51b2010 	ldr	r2, [fp, #-16]
+ c1007ec:	e1a02210 	lsl	r2, r0, r2
+ c1007f0:	e1e02002 	mvn	r2, r2
+ c1007f4:	e0012002 	and	r2, r1, r2
+ c1007f8:	e5832000 	str	r2, [r3]
+ c1007fc:	ea000007 	b	c100820 <portG_conf_pup+0xb0>
+		//COMPLETAR: activar la resistencia de pull-up del pin del puerto G
+
+	}
+	else{
+		rPUPG|=(0x1<<pin);
+ c100800:	e59f302c 	ldr	r3, [pc, #44]	; c100834 <portG_conf_pup+0xc4>
+ c100804:	e59f2028 	ldr	r2, [pc, #40]	; c100834 <portG_conf_pup+0xc4>
+ c100808:	e5921000 	ldr	r1, [r2]
+ c10080c:	e3a00001 	mov	r0, #1
+ c100810:	e51b2010 	ldr	r2, [fp, #-16]
+ c100814:	e1a02210 	lsl	r2, r0, r2
+ c100818:	e1812002 	orr	r2, r1, r2
+ c10081c:	e5832000 	str	r2, [r3]
+		//COMPLETAR: desactivar la resistencia de pull-up del pin del puerto G
+
+	}
+	return 0;
+ c100820:	e3a03000 	mov	r3, #0
+}
+ c100824:	e1a00003 	mov	r0, r3
+ c100828:	e24bd00c 	sub	sp, fp, #12
+ c10082c:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100830:	e12fff1e 	bx	lr
+ c100834:	01d20048 	.word	0x01d20048
+
+0c100838 <portG_write>:
+
+
+int portG_write(int pin, enum digital val)
+{
+ c100838:	e1a0c00d 	mov	ip, sp
+ c10083c:	e92dd800 	push	{fp, ip, lr, pc}
+ c100840:	e24cb004 	sub	fp, ip, #4
+ c100844:	e24dd010 	sub	sp, sp, #16
+ c100848:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c10084c:	e1a03001 	mov	r3, r1
+ c100850:	e54b3019 	strb	r3, [fp, #-25]	; 0xffffffe7
+	int pos = pin*2;
+ c100854:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100858:	e1a03083 	lsl	r3, r3, #1
+ c10085c:	e50b3010 	str	r3, [fp, #-16]
+
+	if (pin < 0 || pin > 7)
+ c100860:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100864:	e3530000 	cmp	r3, #0
+ c100868:	ba000002 	blt	c100878 <portG_write+0x40>
+ c10086c:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100870:	e3530007 	cmp	r3, #7
+ c100874:	da000001 	ble	c100880 <portG_write+0x48>
+		return -1;
+ c100878:	e3e03000 	mvn	r3, #0
+ c10087c:	ea000027 	b	c100920 <portG_write+0xe8>
+
+	if (val < 0 || val > 1)
+ c100880:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c100884:	e3530001 	cmp	r3, #1
+ c100888:	9a000001 	bls	c100894 <portG_write+0x5c>
+		return -1;
+ c10088c:	e3e03000 	mvn	r3, #0
+ c100890:	ea000022 	b	c100920 <portG_write+0xe8>
+
+	if ((rPCONG & (0x3 << pos)) != (0x1 << pos))
+ c100894:	e59f3094 	ldr	r3, [pc, #148]	; c100930 <portG_write+0xf8>
+ c100898:	e5932000 	ldr	r2, [r3]
+ c10089c:	e3a01003 	mov	r1, #3
+ c1008a0:	e51b3010 	ldr	r3, [fp, #-16]
+ c1008a4:	e1a03311 	lsl	r3, r1, r3
+ c1008a8:	e0022003 	and	r2, r2, r3
+ c1008ac:	e3a01001 	mov	r1, #1
+ c1008b0:	e51b3010 	ldr	r3, [fp, #-16]
+ c1008b4:	e1a03311 	lsl	r3, r1, r3
+ c1008b8:	e1520003 	cmp	r2, r3
+ c1008bc:	0a000001 	beq	c1008c8 <portG_write+0x90>
+		return -1;
+ c1008c0:	e3e03000 	mvn	r3, #0
+ c1008c4:	ea000015 	b	c100920 <portG_write+0xe8>
+
+	if (val)
+ c1008c8:	e55b3019 	ldrb	r3, [fp, #-25]	; 0xffffffe7
+ c1008cc:	e3530000 	cmp	r3, #0
+ c1008d0:	0a000008 	beq	c1008f8 <portG_write+0xc0>
+		rPDATG|=(0x1<<pin);
+ c1008d4:	e59f3058 	ldr	r3, [pc, #88]	; c100934 <portG_write+0xfc>
+ c1008d8:	e59f2054 	ldr	r2, [pc, #84]	; c100934 <portG_write+0xfc>
+ c1008dc:	e5921000 	ldr	r1, [r2]
+ c1008e0:	e3a00001 	mov	r0, #1
+ c1008e4:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c1008e8:	e1a02210 	lsl	r2, r0, r2
+ c1008ec:	e1812002 	orr	r2, r1, r2
+ c1008f0:	e5832000 	str	r2, [r3]
+ c1008f4:	ea000008 	b	c10091c <portG_write+0xe4>
+	else
+		rPDATG &=~(0x1<<pin);
+ c1008f8:	e59f3034 	ldr	r3, [pc, #52]	; c100934 <portG_write+0xfc>
+ c1008fc:	e59f2030 	ldr	r2, [pc, #48]	; c100934 <portG_write+0xfc>
+ c100900:	e5921000 	ldr	r1, [r2]
+ c100904:	e3a00001 	mov	r0, #1
+ c100908:	e51b2018 	ldr	r2, [fp, #-24]	; 0xffffffe8
+ c10090c:	e1a02210 	lsl	r2, r0, r2
+ c100910:	e1e02002 	mvn	r2, r2
+ c100914:	e0012002 	and	r2, r1, r2
+ c100918:	e5832000 	str	r2, [r3]
+
+	return 0;
+ c10091c:	e3a03000 	mov	r3, #0
+}
+ c100920:	e1a00003 	mov	r0, r3
+ c100924:	e24bd00c 	sub	sp, fp, #12
+ c100928:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c10092c:	e12fff1e 	bx	lr
+ c100930:	01d20040 	.word	0x01d20040
+ c100934:	01d20044 	.word	0x01d20044
+
+0c100938 <start>:
+	.equ rINTMSK,    0x1e0000c
+
+start:
+
+	/* Pasa a modo supervisor */
+    mrs	r0, cpsr
+ c100938:	e10f0000 	mrs	r0, CPSR
+    bic	r0, r0, #MODEMASK
+ c10093c:	e3c0001f 	bic	r0, r0, #31
+    orr	r1, r0, #SVCMODE
+ c100940:	e3801013 	orr	r1, r0, #19
+    msr	cpsr_c, r1 
+ c100944:	e121f001 	msr	CPSR_c, r1
+
+	/* Enmascara interrupciones */
+	ldr r0, =rINTMSK
+ c100948:	e59f0094 	ldr	r0, [pc, #148]	; c1009e4 <InitStacks+0x48>
+	ldr r1, =0x1fffffff
+ c10094c:	e3e0120e 	mvn	r1, #-536870912	; 0xe0000000
+    str r1, [r0]
+ c100950:	e5801000 	str	r1, [r0]
+
+	/* Habilita linea IRQ y FIQ del CPSR */
+	mrs r0, cpsr
+ c100954:	e10f0000 	mrs	r0, CPSR
+	bic r0, r0, #0xC0
+ c100958:	e3c000c0 	bic	r0, r0, #192	; 0xc0
+	msr cpsr_c, r0
+ c10095c:	e121f000 	msr	CPSR_c, r0
+	
+	/* InicializaciÃ³n de la secciÃ³n bss a 0, estÃ¡ndar C */
+    ldr	    r3, =Image_ZI_Base
+ c100960:	e59f3080 	ldr	r3, [pc, #128]	; c1009e8 <InitStacks+0x4c>
+	ldr	    r1, =Image_ZI_Limit	/* Top of zero init segment */
+ c100964:	e59f1080 	ldr	r1, [pc, #128]	; c1009ec <InitStacks+0x50>
+    mov	    r2, #0
+ c100968:	e3a02000 	mov	r2, #0
+
+0c10096c <L0>:
+L0:
+    cmp	    r3, r1	    		/* Zero init */
+ c10096c:	e1530001 	cmp	r3, r1
+    strcc   r2, [r3], #4
+ c100970:	34832004 	strcc	r2, [r3], #4
+    bcc	    L0
+ c100974:	3afffffc 	bcc	c10096c <L0>
+	/****************************************************/
+
+	/* Desde modo SVC inicializa los SP de todos los modos de ejecuciï¿½n privilegiados */
+    bl InitStacks
+ c100978:	eb000007 	bl	c10099c <InitStacks>
+	
+	/* Desde modo SVC cambia a modo USR e inicializa el SP_usr */
+	mrs r0, cpsr
+ c10097c:	e10f0000 	mrs	r0, CPSR
+	bic r0, r0, #MODEMASK
+ c100980:	e3c0001f 	bic	r0, r0, #31
+	orr r1, r0, #USRMODE  
+ c100984:	e3801010 	orr	r1, r0, #16
+	msr cpsr_c, r1
+ c100988:	e121f001 	msr	CPSR_c, r1
+	ldr sp, =USRSTACK
+ c10098c:	e59fd05c 	ldr	sp, [pc, #92]	; c1009f0 <InitStacks+0x54>
+
+    mov fp, #0
+ c100990:	e3a0b000 	mov	fp, #0
+
+    bl main
+ c100994:	eb000146 	bl	c100eb4 <main>
+
+0c100998 <End>:
+
+End:
+    B End
+ c100998:	eafffffe 	b	c100998 <End>
+
+0c10099c <InitStacks>:
+
+InitStacks:
+	mrs r0, cpsr
+ c10099c:	e10f0000 	mrs	r0, CPSR
+	bic r0, r0, #MODEMASK
+ c1009a0:	e3c0001f 	bic	r0, r0, #31
+
+	orr r1, r0, #UNDMODE  /* desde modo SVC cambia a modo UND e inicializa el SP_und */
+ c1009a4:	e380101b 	orr	r1, r0, #27
+	msr cpsr_c, r1    
+ c1009a8:	e121f001 	msr	CPSR_c, r1
+	ldr sp, =UNDSTACK
+ c1009ac:	e59fd040 	ldr	sp, [pc, #64]	; c1009f4 <InitStacks+0x58>
+
+	orr r1, r0, #ABTMODE  /* desde modo UND cambia a modo ABT e inicializa el SP_abt */
+ c1009b0:	e3801017 	orr	r1, r0, #23
+	msr cpsr_c, r1 
+ c1009b4:	e121f001 	msr	CPSR_c, r1
+	ldr sp, =ABTSTACK
+ c1009b8:	e59fd038 	ldr	sp, [pc, #56]	; c1009f8 <InitStacks+0x5c>
+
+	orr r1, r0, #IRQMODE  /* desde modo ABT cambia a modo IRQ e inicializa el SP_abt */
+ c1009bc:	e3801012 	orr	r1, r0, #18
+	msr cpsr_c, r1
+ c1009c0:	e121f001 	msr	CPSR_c, r1
+	ldr sp, =IRQSTACK
+ c1009c4:	e59fd030 	ldr	sp, [pc, #48]	; c1009fc <InitStacks+0x60>
+
+	orr r1, r0, #FIQMODE  /* desde modo IRQ cambia a modo FIQ e inicializa el SP_fiq */
+ c1009c8:	e3801011 	orr	r1, r0, #17
+	msr cpsr_c, r1
+ c1009cc:	e121f001 	msr	CPSR_c, r1
+	ldr sp, =FIQSTACK
+ c1009d0:	e59fd028 	ldr	sp, [pc, #40]	; c100a00 <InitStacks+0x64>
+
+	orr r1, r0, #SVCMODE  /* desde modo FIQ cambia a modo SVC e inicializa el SP_svc */
+ c1009d4:	e3801013 	orr	r1, r0, #19
+	msr cpsr_c, r1
+ c1009d8:	e121f001 	msr	CPSR_c, r1
+	ldr sp, =SVCSTACK
+ c1009dc:	e59fd020 	ldr	sp, [pc, #32]	; c100a04 <InitStacks+0x68>
+	
+    mov pc, lr
+ c1009e0:	e1a0f00e 	mov	pc, lr
+ c1009e4:	01e0000c 	.word	0x01e0000c
+ c1009e8:	0c100078 	.word	0x0c100078
+ c1009ec:	0c10007c 	.word	0x0c10007c
+ c1009f0:	0c7ff000 	.word	0x0c7ff000
+ c1009f4:	0c7ff200 	.word	0x0c7ff200
+ c1009f8:	0c7ff300 	.word	0x0c7ff300
+ c1009fc:	0c7ff400 	.word	0x0c7ff400
+ c100a00:	0c7ff500 	.word	0x0c7ff500
+ c100a04:	0c7ff100 	.word	0x0c7ff100
+
+0c100a08 <leds_init>:
+// significativos, cada uno para un led
+// 1 encendido y 0 apagado
+static unsigned int status = 0;
+
+void leds_init( void )
+{
+ c100a08:	e1a0c00d 	mov	ip, sp
+ c100a0c:	e92dd800 	push	{fp, ip, lr, pc}
+ c100a10:	e24cb004 	sub	fp, ip, #4
+	//COMPLETAR usando el interfaz del puerto B definido en gpio.h
+	//hay que configurar los pines 9 y 10 como pines de salida
+
+
+	portB_conf(BIT_LED1,OUTPUT);
+ c100a14:	e3a00009 	mov	r0, #9
+ c100a18:	e3a01001 	mov	r1, #1
+ c100a1c:	ebfffdea 	bl	c1001cc <portB_conf>
+	portB_conf(BIT_LED2,OUTPUT);
+ c100a20:	e3a0000a 	mov	r0, #10
+ c100a24:	e3a01001 	mov	r1, #1
+ c100a28:	ebfffde7 	bl	c1001cc <portB_conf>
+	leds_display(status);
+ c100a2c:	e59f3014 	ldr	r3, [pc, #20]	; c100a48 <leds_init+0x40>
+ c100a30:	e5933000 	ldr	r3, [r3]
+ c100a34:	e1a00003 	mov	r0, r3
+ c100a38:	eb000073 	bl	c100c0c <leds_display>
+}
+ c100a3c:	e24bd00c 	sub	sp, fp, #12
+ c100a40:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100a44:	e12fff1e 	bx	lr
+ c100a48:	0c100078 	.word	0x0c100078
+
+0c100a4c <led1_on>:
+
+void led1_on( void )
+{
+ c100a4c:	e1a0c00d 	mov	ip, sp
+ c100a50:	e92dd800 	push	{fp, ip, lr, pc}
+ c100a54:	e24cb004 	sub	fp, ip, #4
+	status |=  LED1;
+ c100a58:	e59f3028 	ldr	r3, [pc, #40]	; c100a88 <led1_on+0x3c>
+ c100a5c:	e5933000 	ldr	r3, [r3]
+ c100a60:	e3832001 	orr	r2, r3, #1
+ c100a64:	e59f301c 	ldr	r3, [pc, #28]	; c100a88 <led1_on+0x3c>
+ c100a68:	e5832000 	str	r2, [r3]
+	leds_display( status );
+ c100a6c:	e59f3014 	ldr	r3, [pc, #20]	; c100a88 <led1_on+0x3c>
+ c100a70:	e5933000 	ldr	r3, [r3]
+ c100a74:	e1a00003 	mov	r0, r3
+ c100a78:	eb000063 	bl	c100c0c <leds_display>
+}
+ c100a7c:	e24bd00c 	sub	sp, fp, #12
+ c100a80:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100a84:	e12fff1e 	bx	lr
+ c100a88:	0c100078 	.word	0x0c100078
+
+0c100a8c <led1_off>:
+
+void led1_off( void )
+{
+ c100a8c:	e1a0c00d 	mov	ip, sp
+ c100a90:	e92dd800 	push	{fp, ip, lr, pc}
+ c100a94:	e24cb004 	sub	fp, ip, #4
+	status &=  ~LED1;
+ c100a98:	e59f3028 	ldr	r3, [pc, #40]	; c100ac8 <led1_off+0x3c>
+ c100a9c:	e5933000 	ldr	r3, [r3]
+ c100aa0:	e3c32001 	bic	r2, r3, #1
+ c100aa4:	e59f301c 	ldr	r3, [pc, #28]	; c100ac8 <led1_off+0x3c>
+ c100aa8:	e5832000 	str	r2, [r3]
+	leds_display( status );
+ c100aac:	e59f3014 	ldr	r3, [pc, #20]	; c100ac8 <led1_off+0x3c>
+ c100ab0:	e5933000 	ldr	r3, [r3]
+ c100ab4:	e1a00003 	mov	r0, r3
+ c100ab8:	eb000053 	bl	c100c0c <leds_display>
+}
+ c100abc:	e24bd00c 	sub	sp, fp, #12
+ c100ac0:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100ac4:	e12fff1e 	bx	lr
+ c100ac8:	0c100078 	.word	0x0c100078
+
+0c100acc <led2_on>:
+
+void led2_on( void )
+{
+ c100acc:	e1a0c00d 	mov	ip, sp
+ c100ad0:	e92dd800 	push	{fp, ip, lr, pc}
+ c100ad4:	e24cb004 	sub	fp, ip, #4
+	status |=  LED2;
+ c100ad8:	e59f3028 	ldr	r3, [pc, #40]	; c100b08 <led2_on+0x3c>
+ c100adc:	e5933000 	ldr	r3, [r3]
+ c100ae0:	e3832002 	orr	r2, r3, #2
+ c100ae4:	e59f301c 	ldr	r3, [pc, #28]	; c100b08 <led2_on+0x3c>
+ c100ae8:	e5832000 	str	r2, [r3]
+	leds_display( status );
+ c100aec:	e59f3014 	ldr	r3, [pc, #20]	; c100b08 <led2_on+0x3c>
+ c100af0:	e5933000 	ldr	r3, [r3]
+ c100af4:	e1a00003 	mov	r0, r3
+ c100af8:	eb000043 	bl	c100c0c <leds_display>
+}
+ c100afc:	e24bd00c 	sub	sp, fp, #12
+ c100b00:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100b04:	e12fff1e 	bx	lr
+ c100b08:	0c100078 	.word	0x0c100078
+
+0c100b0c <led2_off>:
+
+void led2_off( void )
+{
+ c100b0c:	e1a0c00d 	mov	ip, sp
+ c100b10:	e92dd800 	push	{fp, ip, lr, pc}
+ c100b14:	e24cb004 	sub	fp, ip, #4
+	status &=  ~LED2;
+ c100b18:	e59f3028 	ldr	r3, [pc, #40]	; c100b48 <led2_off+0x3c>
+ c100b1c:	e5933000 	ldr	r3, [r3]
+ c100b20:	e3c32002 	bic	r2, r3, #2
+ c100b24:	e59f301c 	ldr	r3, [pc, #28]	; c100b48 <led2_off+0x3c>
+ c100b28:	e5832000 	str	r2, [r3]
+	leds_display( status );
+ c100b2c:	e59f3014 	ldr	r3, [pc, #20]	; c100b48 <led2_off+0x3c>
+ c100b30:	e5933000 	ldr	r3, [r3]
+ c100b34:	e1a00003 	mov	r0, r3
+ c100b38:	eb000033 	bl	c100c0c <leds_display>
+}
+ c100b3c:	e24bd00c 	sub	sp, fp, #12
+ c100b40:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100b44:	e12fff1e 	bx	lr
+ c100b48:	0c100078 	.word	0x0c100078
+
+0c100b4c <led1_switch>:
+
+void led1_switch( void )
+{
+ c100b4c:	e1a0c00d 	mov	ip, sp
+ c100b50:	e92dd800 	push	{fp, ip, lr, pc}
+ c100b54:	e24cb004 	sub	fp, ip, #4
+	status ^= LED1;
+ c100b58:	e59f3028 	ldr	r3, [pc, #40]	; c100b88 <led1_switch+0x3c>
+ c100b5c:	e5933000 	ldr	r3, [r3]
+ c100b60:	e2232001 	eor	r2, r3, #1
+ c100b64:	e59f301c 	ldr	r3, [pc, #28]	; c100b88 <led1_switch+0x3c>
+ c100b68:	e5832000 	str	r2, [r3]
+	leds_display( status );
+ c100b6c:	e59f3014 	ldr	r3, [pc, #20]	; c100b88 <led1_switch+0x3c>
+ c100b70:	e5933000 	ldr	r3, [r3]
+ c100b74:	e1a00003 	mov	r0, r3
+ c100b78:	eb000023 	bl	c100c0c <leds_display>
+}
+ c100b7c:	e24bd00c 	sub	sp, fp, #12
+ c100b80:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100b84:	e12fff1e 	bx	lr
+ c100b88:	0c100078 	.word	0x0c100078
+
+0c100b8c <led2_switch>:
+
+void led2_switch( void )
+{
+ c100b8c:	e1a0c00d 	mov	ip, sp
+ c100b90:	e92dd800 	push	{fp, ip, lr, pc}
+ c100b94:	e24cb004 	sub	fp, ip, #4
+	status ^= LED2;
+ c100b98:	e59f3028 	ldr	r3, [pc, #40]	; c100bc8 <led2_switch+0x3c>
+ c100b9c:	e5933000 	ldr	r3, [r3]
+ c100ba0:	e2232002 	eor	r2, r3, #2
+ c100ba4:	e59f301c 	ldr	r3, [pc, #28]	; c100bc8 <led2_switch+0x3c>
+ c100ba8:	e5832000 	str	r2, [r3]
+	leds_display( status );
+ c100bac:	e59f3014 	ldr	r3, [pc, #20]	; c100bc8 <led2_switch+0x3c>
+ c100bb0:	e5933000 	ldr	r3, [r3]
+ c100bb4:	e1a00003 	mov	r0, r3
+ c100bb8:	eb000013 	bl	c100c0c <leds_display>
+}
+ c100bbc:	e24bd00c 	sub	sp, fp, #12
+ c100bc0:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100bc4:	e12fff1e 	bx	lr
+ c100bc8:	0c100078 	.word	0x0c100078
+
+0c100bcc <leds_switch>:
+
+void leds_switch( void ){
+ c100bcc:	e1a0c00d 	mov	ip, sp
+ c100bd0:	e92dd800 	push	{fp, ip, lr, pc}
+ c100bd4:	e24cb004 	sub	fp, ip, #4
+	status ^= (LED1 | LED2);
+ c100bd8:	e59f3028 	ldr	r3, [pc, #40]	; c100c08 <leds_switch+0x3c>
+ c100bdc:	e5933000 	ldr	r3, [r3]
+ c100be0:	e2232003 	eor	r2, r3, #3
+ c100be4:	e59f301c 	ldr	r3, [pc, #28]	; c100c08 <leds_switch+0x3c>
+ c100be8:	e5832000 	str	r2, [r3]
+	leds_display( status );
+ c100bec:	e59f3014 	ldr	r3, [pc, #20]	; c100c08 <leds_switch+0x3c>
+ c100bf0:	e5933000 	ldr	r3, [r3]
+ c100bf4:	e1a00003 	mov	r0, r3
+ c100bf8:	eb000003 	bl	c100c0c <leds_display>
+}
+ c100bfc:	e24bd00c 	sub	sp, fp, #12
+ c100c00:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100c04:	e12fff1e 	bx	lr
+ c100c08:	0c100078 	.word	0x0c100078
+
+0c100c0c <leds_display>:
+
+void leds_display( unsigned int leds_status )
+{
+ c100c0c:	e1a0c00d 	mov	ip, sp
+ c100c10:	e92dd800 	push	{fp, ip, lr, pc}
+ c100c14:	e24cb004 	sub	fp, ip, #4
+ c100c18:	e24dd008 	sub	sp, sp, #8
+ c100c1c:	e50b0010 	str	r0, [fp, #-16]
+	status = leds_status;
+ c100c20:	e59f3074 	ldr	r3, [pc, #116]	; c100c9c <leds_display+0x90>
+ c100c24:	e51b2010 	ldr	r2, [fp, #-16]
+ c100c28:	e5832000 	str	r2, [r3]
+	
+	// LED 1
+	if( status & LED1 ){
+ c100c2c:	e59f3068 	ldr	r3, [pc, #104]	; c100c9c <leds_display+0x90>
+ c100c30:	e5933000 	ldr	r3, [r3]
+ c100c34:	e2033001 	and	r3, r3, #1
+ c100c38:	e20330ff 	and	r3, r3, #255	; 0xff
+ c100c3c:	e3530000 	cmp	r3, #0
+ c100c40:	0a000003 	beq	c100c54 <leds_display+0x48>
+		//COMPLETAR usando el interfaz del puerto B definido en gpio.h
+		//hay que poner a nivel bajo el bit correspondiente al led 1
+		portB_write(BIT_LED1,LOW);
+ c100c44:	e3a00009 	mov	r0, #9
+ c100c48:	e3a01000 	mov	r1, #0
+ c100c4c:	ebfffd90 	bl	c100294 <portB_write>
+ c100c50:	ea000002 	b	c100c60 <leds_display+0x54>
+
+	}
+	else{
+		//COMPLETAR usando el interfaz del puerto B definido en gpio.h
+		//hay que poner a nivel alto el bit correspondiente al led 1
+		portB_write(BIT_LED1,HIGH);
+ c100c54:	e3a00009 	mov	r0, #9
+ c100c58:	e3a01001 	mov	r1, #1
+ c100c5c:	ebfffd8c 	bl	c100294 <portB_write>
+	}
+	// LED 2
+	if( status & LED2 ){
+ c100c60:	e59f3034 	ldr	r3, [pc, #52]	; c100c9c <leds_display+0x90>
+ c100c64:	e5933000 	ldr	r3, [r3]
+ c100c68:	e2033002 	and	r3, r3, #2
+ c100c6c:	e3530000 	cmp	r3, #0
+ c100c70:	0a000003 	beq	c100c84 <leds_display+0x78>
+		//COMPLETAR usando el interfaz del puerto B definido en gpio.h
+		//hay que poner a nivel bajo el bit correspondiente al led 2
+		portB_write(BIT_LED2,LOW);
+ c100c74:	e3a0000a 	mov	r0, #10
+ c100c78:	e3a01000 	mov	r1, #0
+ c100c7c:	ebfffd84 	bl	c100294 <portB_write>
+ c100c80:	ea000002 	b	c100c90 <leds_display+0x84>
+	}
+	else{
+		//COMPLETAR usando el interfaz del puerto B definido en gpio.h
+		//hay que poner a nivel alto el bit correspondiente al led 2
+		portB_write(BIT_LED2,HIGH);
+ c100c84:	e3a0000a 	mov	r0, #10
+ c100c88:	e3a01001 	mov	r1, #1
+ c100c8c:	ebfffd80 	bl	c100294 <portB_write>
+	}
+
+}
+ c100c90:	e24bd00c 	sub	sp, fp, #12
+ c100c94:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100c98:	e12fff1e 	bx	lr
+ c100c9c:	0c100078 	.word	0x0c100078
+
+0c100ca0 <setup>:
+	.direction = 0,
+	.position = 0,
+};
+
+int setup(void)
+{
+ c100ca0:	e1a0c00d 	mov	ip, sp
+ c100ca4:	e92dd800 	push	{fp, ip, lr, pc}
+ c100ca8:	e24cb004 	sub	fp, ip, #4
+	leds_init();
+ c100cac:	ebffff55 	bl	c100a08 <leds_init>
+	D8Led_init();
+ c100cb0:	ebfffcf1 	bl	c10007c <D8Led_init>
+	D8Led_segment(RL.position);
+ c100cb4:	e59f3054 	ldr	r3, [pc, #84]	; c100d10 <setup+0x70>
+ c100cb8:	e5933010 	ldr	r3, [r3, #16]
+ c100cbc:	e1a00003 	mov	r0, r3
+ c100cc0:	ebfffcf6 	bl	c1000a0 <D8Led_segment>
+
+	/* Port G: configuraciÃ³n para espera activa */
+	//COMPLETAR: utilizando el interfaz para el puerto G definido en gpio.h
+	//hay que configurar los pines 6 y 7 del puerto G como pines de entrada y
+	//activar las correspondientes resistencias de pull-up
+	portG_conf(6,INPUT);
+ c100cc4:	e3a00006 	mov	r0, #6
+ c100cc8:	e3a01000 	mov	r1, #0
+ c100ccc:	ebfffd9f 	bl	c100350 <portG_conf>
+	portG_conf(7,INPUT);
+ c100cd0:	e3a00007 	mov	r0, #7
+ c100cd4:	e3a01000 	mov	r1, #0
+ c100cd8:	ebfffd9c 	bl	c100350 <portG_conf>
+	portG_conf_pup(6, ENABLE);
+ c100cdc:	e3a00006 	mov	r0, #6
+ c100ce0:	e3a01001 	mov	r1, #1
+ c100ce4:	ebfffea1 	bl	c100770 <portG_conf_pup>
+	portG_conf_pup(7, ENABLE);
+ c100ce8:	e3a00007 	mov	r0, #7
+ c100cec:	e3a01001 	mov	r1, #1
+ c100cf0:	ebfffe9e 	bl	c100770 <portG_conf_pup>
+	/*******************************************/
+
+	Delay(0);
+ c100cf4:	e3a00000 	mov	r0, #0
+ c100cf8:	eb000073 	bl	c100ecc <Delay>
+	return 0;
+ c100cfc:	e3a03000 	mov	r3, #0
+}
+ c100d00:	e1a00003 	mov	r0, r3
+ c100d04:	e24bd00c 	sub	sp, fp, #12
+ c100d08:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100d0c:	e12fff1e 	bx	lr
+ c100d10:	0c100060 	.word	0x0c100060
+
+0c100d14 <loop>:
+
+int loop(void)
+{
+ c100d14:	e1a0c00d 	mov	ip, sp
+ c100d18:	e92dd800 	push	{fp, ip, lr, pc}
+ c100d1c:	e24cb004 	sub	fp, ip, #4
+ c100d20:	e24dd008 	sub	sp, sp, #8
+	unsigned int buttons = read_button();
+ c100d24:	ebfffd0b 	bl	c100158 <read_button>
+ c100d28:	e50b0010 	str	r0, [fp, #-16]
+	// COMPLETAR: utilizando la interfaz para los leds definida en leds.h
+		// hay que conmutar el led1, si esta encendido apagarlo y viceversa
+		// TambiÃ©n hay que comutar la direcciÃ³n del movimiento del led rotante
+		// representado por el campo direction de la variable RL
+
+	if (buttons & BUT1) {
+ c100d2c:	e51b3010 	ldr	r3, [fp, #-16]
+ c100d30:	e2033001 	and	r3, r3, #1
+ c100d34:	e20330ff 	and	r3, r3, #255	; 0xff
+ c100d38:	e3530000 	cmp	r3, #0
+ c100d3c:	0a00000b 	beq	c100d70 <loop+0x5c>
+
+		led1_switch();
+ c100d40:	ebffff81 	bl	c100b4c <led1_switch>
+
+		if(RL.direction==1) RL.direction=0;
+ c100d44:	e59f3164 	ldr	r3, [pc, #356]	; c100eb0 <loop+0x19c>
+ c100d48:	e593300c 	ldr	r3, [r3, #12]
+ c100d4c:	e3530001 	cmp	r3, #1
+ c100d50:	1a000003 	bne	c100d64 <loop+0x50>
+ c100d54:	e59f3154 	ldr	r3, [pc, #340]	; c100eb0 <loop+0x19c>
+ c100d58:	e3a02000 	mov	r2, #0
+ c100d5c:	e583200c 	str	r2, [r3, #12]
+ c100d60:	ea000002 	b	c100d70 <loop+0x5c>
+		else RL.direction=1;
+ c100d64:	e59f3144 	ldr	r3, [pc, #324]	; c100eb0 <loop+0x19c>
+ c100d68:	e3a02001 	mov	r2, #1
+ c100d6c:	e583200c 	str	r2, [r3, #12]
+	// COMPLETAR: utilizando la interfaz para los leds definida en leds.h
+	// hay que conmutar el led2
+	// TambiÃ©n hay que comutar el estado de movimiento del led rotante
+	// representado por el campo moving de la variable RL, y en caso de
+	// ponerlo en marcha debemos reiniciar el campo iter al valor del campo speed.
+if (buttons & BUT2) {
+ c100d70:	e51b3010 	ldr	r3, [fp, #-16]
+ c100d74:	e2033002 	and	r3, r3, #2
+ c100d78:	e3530000 	cmp	r3, #0
+ c100d7c:	0a00000f 	beq	c100dc0 <loop+0xac>
+		led2_switch();
+ c100d80:	ebffff81 	bl	c100b8c <led2_switch>
+		if (RL.moving==1) RL.moving=0;
+ c100d84:	e59f3124 	ldr	r3, [pc, #292]	; c100eb0 <loop+0x19c>
+ c100d88:	e5933000 	ldr	r3, [r3]
+ c100d8c:	e3530001 	cmp	r3, #1
+ c100d90:	1a000003 	bne	c100da4 <loop+0x90>
+ c100d94:	e59f3114 	ldr	r3, [pc, #276]	; c100eb0 <loop+0x19c>
+ c100d98:	e3a02000 	mov	r2, #0
+ c100d9c:	e5832000 	str	r2, [r3]
+ c100da0:	ea000006 	b	c100dc0 <loop+0xac>
+		else
+		{
+			RL.moving=1;
+ c100da4:	e59f3104 	ldr	r3, [pc, #260]	; c100eb0 <loop+0x19c>
+ c100da8:	e3a02001 	mov	r2, #1
+ c100dac:	e5832000 	str	r2, [r3]
+			RL.iter=RL.speed;
+ c100db0:	e59f30f8 	ldr	r3, [pc, #248]	; c100eb0 <loop+0x19c>
+ c100db4:	e5932004 	ldr	r2, [r3, #4]
+ c100db8:	e59f30f0 	ldr	r3, [pc, #240]	; c100eb0 <loop+0x19c>
+ c100dbc:	e5832008 	str	r2, [r3, #8]
+					// la direcciÃ³n indicada por el campo direction de la variable RL.
+				    // La posiciÃ³n actual estÃ¡ representada en el campo position.
+				   // Recordar que queremos un movimiento circular, representado por
+				   // las 6 primeras posiciones en el array Segmentes del display de 8
+				   // segmentos, por lo que position debe estar siempre entre 0 y 5.
+	if (RL.moving) {
+ c100dc0:	e59f30e8 	ldr	r3, [pc, #232]	; c100eb0 <loop+0x19c>
+ c100dc4:	e5933000 	ldr	r3, [r3]
+ c100dc8:	e3530000 	cmp	r3, #0
+ c100dcc:	0a000030 	beq	c100e94 <loop+0x180>
+		if(RL.iter == 0) {
+ c100dd0:	e59f30d8 	ldr	r3, [pc, #216]	; c100eb0 <loop+0x19c>
+ c100dd4:	e5933008 	ldr	r3, [r3, #8]
+ c100dd8:	e3530000 	cmp	r3, #0
+ c100ddc:	1a000027 	bne	c100e80 <loop+0x16c>
+			if(RL.direction==0){
+ c100de0:	e59f30c8 	ldr	r3, [pc, #200]	; c100eb0 <loop+0x19c>
+ c100de4:	e593300c 	ldr	r3, [r3, #12]
+ c100de8:	e3530000 	cmp	r3, #0
+ c100dec:	1a00000d 	bne	c100e28 <loop+0x114>
+				if(RL.position== 5)
+ c100df0:	e59f30b8 	ldr	r3, [pc, #184]	; c100eb0 <loop+0x19c>
+ c100df4:	e5933010 	ldr	r3, [r3, #16]
+ c100df8:	e3530005 	cmp	r3, #5
+ c100dfc:	1a000003 	bne	c100e10 <loop+0xfc>
+					RL.position = 0;
+ c100e00:	e59f30a8 	ldr	r3, [pc, #168]	; c100eb0 <loop+0x19c>
+ c100e04:	e3a02000 	mov	r2, #0
+ c100e08:	e5832010 	str	r2, [r3, #16]
+ c100e0c:	ea000012 	b	c100e5c <loop+0x148>
+				else
+					RL.position++;
+ c100e10:	e59f3098 	ldr	r3, [pc, #152]	; c100eb0 <loop+0x19c>
+ c100e14:	e5933010 	ldr	r3, [r3, #16]
+ c100e18:	e2832001 	add	r2, r3, #1
+ c100e1c:	e59f308c 	ldr	r3, [pc, #140]	; c100eb0 <loop+0x19c>
+ c100e20:	e5832010 	str	r2, [r3, #16]
+ c100e24:	ea00000c 	b	c100e5c <loop+0x148>
+				}
+
+			else{
+				if(RL.position== 0)
+ c100e28:	e59f3080 	ldr	r3, [pc, #128]	; c100eb0 <loop+0x19c>
+ c100e2c:	e5933010 	ldr	r3, [r3, #16]
+ c100e30:	e3530000 	cmp	r3, #0
+ c100e34:	1a000003 	bne	c100e48 <loop+0x134>
+					RL.position = 5;
+ c100e38:	e59f3070 	ldr	r3, [pc, #112]	; c100eb0 <loop+0x19c>
+ c100e3c:	e3a02005 	mov	r2, #5
+ c100e40:	e5832010 	str	r2, [r3, #16]
+ c100e44:	ea000004 	b	c100e5c <loop+0x148>
+				else
+					RL.position--;
+ c100e48:	e59f3060 	ldr	r3, [pc, #96]	; c100eb0 <loop+0x19c>
+ c100e4c:	e5933010 	ldr	r3, [r3, #16]
+ c100e50:	e2432001 	sub	r2, r3, #1
+ c100e54:	e59f3054 	ldr	r3, [pc, #84]	; c100eb0 <loop+0x19c>
+ c100e58:	e5832010 	str	r2, [r3, #16]
+			}
+			D8Led_segment(RL.position);
+ c100e5c:	e59f304c 	ldr	r3, [pc, #76]	; c100eb0 <loop+0x19c>
+ c100e60:	e5933010 	ldr	r3, [r3, #16]
+ c100e64:	e1a00003 	mov	r0, r3
+ c100e68:	ebfffc8c 	bl	c1000a0 <D8Led_segment>
+			RL.iter = RL.speed;
+ c100e6c:	e59f303c 	ldr	r3, [pc, #60]	; c100eb0 <loop+0x19c>
+ c100e70:	e5932004 	ldr	r2, [r3, #4]
+ c100e74:	e59f3034 	ldr	r3, [pc, #52]	; c100eb0 <loop+0x19c>
+ c100e78:	e5832008 	str	r2, [r3, #8]
+ c100e7c:	ea000004 	b	c100e94 <loop+0x180>
+		}
+		else RL.iter--;
+ c100e80:	e59f3028 	ldr	r3, [pc, #40]	; c100eb0 <loop+0x19c>
+ c100e84:	e5933008 	ldr	r3, [r3, #8]
+ c100e88:	e2432001 	sub	r2, r3, #1
+ c100e8c:	e59f301c 	ldr	r3, [pc, #28]	; c100eb0 <loop+0x19c>
+ c100e90:	e5832008 	str	r2, [r3, #8]
+	}
+
+	Delay(2000); // espera de 200ms para que el bucle se repita 5 veces por segundo
+ c100e94:	e3a00e7d 	mov	r0, #2000	; 0x7d0
+ c100e98:	eb00000b 	bl	c100ecc <Delay>
+	return 0;
+ c100e9c:	e3a03000 	mov	r3, #0
+}
+ c100ea0:	e1a00003 	mov	r0, r3
+ c100ea4:	e24bd00c 	sub	sp, fp, #12
+ c100ea8:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100eac:	e12fff1e 	bx	lr
+ c100eb0:	0c100060 	.word	0x0c100060
+
+0c100eb4 <main>:
+
+
+int main(void)
+{
+ c100eb4:	e1a0c00d 	mov	ip, sp
+ c100eb8:	e92dd800 	push	{fp, ip, lr, pc}
+ c100ebc:	e24cb004 	sub	fp, ip, #4
+	setup();
+ c100ec0:	ebffff76 	bl	c100ca0 <setup>
+
+	while (1) {
+		loop();
+ c100ec4:	ebffff92 	bl	c100d14 <loop>
+	}
+ c100ec8:	eafffffd 	b	c100ec4 <main+0x10>
+
+0c100ecc <Delay>:
+
+void Delay(int time)
+// time=0: adjust the Delay function by WatchDog timer.//
+// time>0: the number of loop time//
+// 100us resolution.//
+{
+ c100ecc:	e1a0c00d 	mov	ip, sp
+ c100ed0:	e92dd800 	push	{fp, ip, lr, pc}
+ c100ed4:	e24cb004 	sub	fp, ip, #4
+ c100ed8:	e24dd010 	sub	sp, sp, #16
+ c100edc:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+	int i,adjust=0;
+ c100ee0:	e3a03000 	mov	r3, #0
+ c100ee4:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+	if(time==0)
+ c100ee8:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100eec:	e3530000 	cmp	r3, #0
+ c100ef0:	1a000021 	bne	c100f7c <Delay+0xb0>
+	{
+		time=200;
+ c100ef4:	e3a030c8 	mov	r3, #200	; 0xc8
+ c100ef8:	e50b3018 	str	r3, [fp, #-24]	; 0xffffffe8
+		adjust=1;
+ c100efc:	e3a03001 	mov	r3, #1
+ c100f00:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+		delayLoopCount=400;
+ c100f04:	e59f30d8 	ldr	r3, [pc, #216]	; c100fe4 <Delay+0x118>
+ c100f08:	e3a02e19 	mov	r2, #400	; 0x190
+ c100f0c:	e5832000 	str	r2, [r3]
+		rWTCON=((MCLK/1000000-1)<<8)|(2<<3);	// 1M/64,Watch-dog,nRESET,interrupt disable//
+ c100f10:	e59f30d0 	ldr	r3, [pc, #208]	; c100fe8 <Delay+0x11c>
+ c100f14:	e59f20d0 	ldr	r2, [pc, #208]	; c100fec <Delay+0x120>
+ c100f18:	e5832000 	str	r2, [r3]
+		rWTDAT=0xffff;
+ c100f1c:	e59f30cc 	ldr	r3, [pc, #204]	; c100ff0 <Delay+0x124>
+ c100f20:	e59f20cc 	ldr	r2, [pc, #204]	; c100ff4 <Delay+0x128>
+ c100f24:	e5832000 	str	r2, [r3]
+		rWTCNT=0xffff;
+ c100f28:	e59f30c8 	ldr	r3, [pc, #200]	; c100ff8 <Delay+0x12c>
+ c100f2c:	e59f20c0 	ldr	r2, [pc, #192]	; c100ff4 <Delay+0x128>
+ c100f30:	e5832000 	str	r2, [r3]
+		rWTCON=((MCLK/1000000-1)<<8)|(2<<3)|(1<<5); // 1M/64,Watch-dog enable,nRESET,interrupt disable //
+ c100f34:	e59f30ac 	ldr	r3, [pc, #172]	; c100fe8 <Delay+0x11c>
+ c100f38:	e59f20bc 	ldr	r2, [pc, #188]	; c100ffc <Delay+0x130>
+ c100f3c:	e5832000 	str	r2, [r3]
+	}
+	for(;time>0;time--)
+ c100f40:	ea00000d 	b	c100f7c <Delay+0xb0>
+		for(i=0;i<delayLoopCount;i++);
+ c100f44:	e3a03000 	mov	r3, #0
+ c100f48:	e50b3010 	str	r3, [fp, #-16]
+ c100f4c:	ea000002 	b	c100f5c <Delay+0x90>
+ c100f50:	e51b3010 	ldr	r3, [fp, #-16]
+ c100f54:	e2833001 	add	r3, r3, #1
+ c100f58:	e50b3010 	str	r3, [fp, #-16]
+ c100f5c:	e59f3080 	ldr	r3, [pc, #128]	; c100fe4 <Delay+0x118>
+ c100f60:	e5933000 	ldr	r3, [r3]
+ c100f64:	e51b2010 	ldr	r2, [fp, #-16]
+ c100f68:	e1520003 	cmp	r2, r3
+ c100f6c:	bafffff7 	blt	c100f50 <Delay+0x84>
+		rWTCON=((MCLK/1000000-1)<<8)|(2<<3);	// 1M/64,Watch-dog,nRESET,interrupt disable//
+		rWTDAT=0xffff;
+		rWTCNT=0xffff;
+		rWTCON=((MCLK/1000000-1)<<8)|(2<<3)|(1<<5); // 1M/64,Watch-dog enable,nRESET,interrupt disable //
+	}
+	for(;time>0;time--)
+ c100f70:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100f74:	e2433001 	sub	r3, r3, #1
+ c100f78:	e50b3018 	str	r3, [fp, #-24]	; 0xffffffe8
+ c100f7c:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c100f80:	e3530000 	cmp	r3, #0
+ c100f84:	caffffee 	bgt	c100f44 <Delay+0x78>
+		for(i=0;i<delayLoopCount;i++);
+	if(adjust==1)
+ c100f88:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c100f8c:	e3530001 	cmp	r3, #1
+ c100f90:	1a000010 	bne	c100fd8 <Delay+0x10c>
+	{
+		rWTCON=((MCLK/1000000-1)<<8)|(2<<3);
+ c100f94:	e59f304c 	ldr	r3, [pc, #76]	; c100fe8 <Delay+0x11c>
+ c100f98:	e59f204c 	ldr	r2, [pc, #76]	; c100fec <Delay+0x120>
+ c100f9c:	e5832000 	str	r2, [r3]
+		i=0xffff-rWTCNT;   //  1count/16us?????????//
+ c100fa0:	e59f3050 	ldr	r3, [pc, #80]	; c100ff8 <Delay+0x12c>
+ c100fa4:	e5933000 	ldr	r3, [r3]
+ c100fa8:	e2633cff 	rsb	r3, r3, #65280	; 0xff00
+ c100fac:	e28330ff 	add	r3, r3, #255	; 0xff
+ c100fb0:	e50b3010 	str	r3, [fp, #-16]
+		delayLoopCount=8000000/(i*64);	//400*100/(i*64/200)   //
+ c100fb4:	e51b3010 	ldr	r3, [fp, #-16]
+ c100fb8:	e1a03303 	lsl	r3, r3, #6
+ c100fbc:	e59f003c 	ldr	r0, [pc, #60]	; c101000 <Delay+0x134>
+ c100fc0:	e1a01003 	mov	r1, r3
+ c100fc4:	eb00000e 	bl	c101004 <__aeabi_idiv>
+ c100fc8:	e1a03000 	mov	r3, r0
+ c100fcc:	e1a02003 	mov	r2, r3
+ c100fd0:	e59f300c 	ldr	r3, [pc, #12]	; c100fe4 <Delay+0x118>
+ c100fd4:	e5832000 	str	r2, [r3]
+	}
+}
+ c100fd8:	e24bd00c 	sub	sp, fp, #12
+ c100fdc:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c100fe0:	e12fff1e 	bx	lr
+ c100fe4:	0c100074 	.word	0x0c100074
+ c100fe8:	01d30000 	.word	0x01d30000
+ c100fec:	00003f10 	.word	0x00003f10
+ c100ff0:	01d30004 	.word	0x01d30004
+ c100ff4:	0000ffff 	.word	0x0000ffff
+ c100ff8:	01d30008 	.word	0x01d30008
+ c100ffc:	00003f30 	.word	0x00003f30
+ c101000:	007a1200 	.word	0x007a1200
+
+0c101004 <__aeabi_idiv>:
+ c101004:	e3510000 	cmp	r1, #0
+ c101008:	0a000043 	beq	c10111c <.divsi3_skip_div0_test+0x110>
+
+0c10100c <.divsi3_skip_div0_test>:
+ c10100c:	e020c001 	eor	ip, r0, r1
+ c101010:	42611000 	rsbmi	r1, r1, #0
+ c101014:	e2512001 	subs	r2, r1, #1
+ c101018:	0a000027 	beq	c1010bc <.divsi3_skip_div0_test+0xb0>
+ c10101c:	e1b03000 	movs	r3, r0
+ c101020:	42603000 	rsbmi	r3, r0, #0
+ c101024:	e1530001 	cmp	r3, r1
+ c101028:	9a000026 	bls	c1010c8 <.divsi3_skip_div0_test+0xbc>
+ c10102c:	e1110002 	tst	r1, r2
+ c101030:	0a000028 	beq	c1010d8 <.divsi3_skip_div0_test+0xcc>
+ c101034:	e311020e 	tst	r1, #-536870912	; 0xe0000000
+ c101038:	01a01181 	lsleq	r1, r1, #3
+ c10103c:	03a02008 	moveq	r2, #8
+ c101040:	13a02001 	movne	r2, #1
+ c101044:	e3510201 	cmp	r1, #268435456	; 0x10000000
+ c101048:	31510003 	cmpcc	r1, r3
+ c10104c:	31a01201 	lslcc	r1, r1, #4
+ c101050:	31a02202 	lslcc	r2, r2, #4
+ c101054:	3afffffa 	bcc	c101044 <.divsi3_skip_div0_test+0x38>
+ c101058:	e3510102 	cmp	r1, #-2147483648	; 0x80000000
+ c10105c:	31510003 	cmpcc	r1, r3
+ c101060:	31a01081 	lslcc	r1, r1, #1
+ c101064:	31a02082 	lslcc	r2, r2, #1
+ c101068:	3afffffa 	bcc	c101058 <.divsi3_skip_div0_test+0x4c>
+ c10106c:	e3a00000 	mov	r0, #0
+ c101070:	e1530001 	cmp	r3, r1
+ c101074:	20433001 	subcs	r3, r3, r1
+ c101078:	21800002 	orrcs	r0, r0, r2
+ c10107c:	e15300a1 	cmp	r3, r1, lsr #1
+ c101080:	204330a1 	subcs	r3, r3, r1, lsr #1
+ c101084:	218000a2 	orrcs	r0, r0, r2, lsr #1
+ c101088:	e1530121 	cmp	r3, r1, lsr #2
+ c10108c:	20433121 	subcs	r3, r3, r1, lsr #2
+ c101090:	21800122 	orrcs	r0, r0, r2, lsr #2
+ c101094:	e15301a1 	cmp	r3, r1, lsr #3
+ c101098:	204331a1 	subcs	r3, r3, r1, lsr #3
+ c10109c:	218001a2 	orrcs	r0, r0, r2, lsr #3
+ c1010a0:	e3530000 	cmp	r3, #0
+ c1010a4:	11b02222 	lsrsne	r2, r2, #4
+ c1010a8:	11a01221 	lsrne	r1, r1, #4
+ c1010ac:	1affffef 	bne	c101070 <.divsi3_skip_div0_test+0x64>
+ c1010b0:	e35c0000 	cmp	ip, #0
+ c1010b4:	42600000 	rsbmi	r0, r0, #0
+ c1010b8:	e12fff1e 	bx	lr
+ c1010bc:	e13c0000 	teq	ip, r0
+ c1010c0:	42600000 	rsbmi	r0, r0, #0
+ c1010c4:	e12fff1e 	bx	lr
+ c1010c8:	33a00000 	movcc	r0, #0
+ c1010cc:	01a00fcc 	asreq	r0, ip, #31
+ c1010d0:	03800001 	orreq	r0, r0, #1
+ c1010d4:	e12fff1e 	bx	lr
+ c1010d8:	e3510801 	cmp	r1, #65536	; 0x10000
+ c1010dc:	21a01821 	lsrcs	r1, r1, #16
+ c1010e0:	23a02010 	movcs	r2, #16
+ c1010e4:	33a02000 	movcc	r2, #0
+ c1010e8:	e3510c01 	cmp	r1, #256	; 0x100
+ c1010ec:	21a01421 	lsrcs	r1, r1, #8
+ c1010f0:	22822008 	addcs	r2, r2, #8
+ c1010f4:	e3510010 	cmp	r1, #16
+ c1010f8:	21a01221 	lsrcs	r1, r1, #4
+ c1010fc:	22822004 	addcs	r2, r2, #4
+ c101100:	e3510004 	cmp	r1, #4
+ c101104:	82822003 	addhi	r2, r2, #3
+ c101108:	908220a1 	addls	r2, r2, r1, lsr #1
+ c10110c:	e35c0000 	cmp	ip, #0
+ c101110:	e1a00233 	lsr	r0, r3, r2
+ c101114:	42600000 	rsbmi	r0, r0, #0
+ c101118:	e12fff1e 	bx	lr
+ c10111c:	e3500000 	cmp	r0, #0
+ c101120:	c3e00102 	mvngt	r0, #-2147483648	; 0x80000000
+ c101124:	b3a00102 	movlt	r0, #-2147483648	; 0x80000000
+ c101128:	ea000007 	b	c10114c <__aeabi_idiv0>
+
+0c10112c <__aeabi_idivmod>:
+ c10112c:	e3510000 	cmp	r1, #0
+ c101130:	0afffff9 	beq	c10111c <.divsi3_skip_div0_test+0x110>
+ c101134:	e92d4003 	push	{r0, r1, lr}
+ c101138:	ebffffb3 	bl	c10100c <.divsi3_skip_div0_test>
+ c10113c:	e8bd4006 	pop	{r1, r2, lr}
+ c101140:	e0030092 	mul	r3, r2, r0
+ c101144:	e0411003 	sub	r1, r1, r3
+ c101148:	e12fff1e 	bx	lr
+
+0c10114c <__aeabi_idiv0>:
+ c10114c:	e12fff1e 	bx	lr
