@@ -1,0 +1,663 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"intcontroller.c"
+  21              	.Ltext0:
+  22              		.file 1 "../intcontroller.c"
+ 1893              		.align	2
+ 1894              		.global	ic_init
+ 1896              	ic_init:
+ 1897              	.LFB0:
+   1:../intcontroller.c **** /*-------------------------------------------------------------------
+   2:../intcontroller.c **** **
+   3:../intcontroller.c **** **  Fichero:
+   4:../intcontroller.c **** 
+   5:../intcontroller.c **** **    intcontroller.c
+   6:../intcontroller.c **** **
+   7:../intcontroller.c **** **    Estructura de Computadores
+   8:../intcontroller.c **** **    Dpto. de Arquitectura de Computadores y Automática
+   9:../intcontroller.c **** **    Facultad de Informática. Universidad Complutense de Madrid
+  10:../intcontroller.c **** **
+  11:../intcontroller.c **** **  Propósito:
+  12:../intcontroller.c **** **    Contiene las implementación del módulo intcontroller
+  13:../intcontroller.c **** **
+  14:../intcontroller.c **** **-----------------------------------------------------------------*/
+  15:../intcontroller.c **** 
+  16:../intcontroller.c **** /*--- ficheros de cabecera ---*/
+  17:../intcontroller.c **** #include "44b.h"
+  18:../intcontroller.c **** #include "44blib.h"
+  19:../intcontroller.c **** #include "gpio.h"
+  20:../intcontroller.c **** #include "intcontroller.h"
+  21:../intcontroller.c **** 
+  22:../intcontroller.c **** void ic_init(void)
+  23:../intcontroller.c **** {
+ 1898              		.loc 1 23 0
+ 1899              		.cfi_startproc
+ 1900              		@ Function supports interworking.
+ 1901              		@ args = 0, pretend = 0, frame = 0
+ 1902              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1903 0000 0DC0A0E1 		mov	ip, sp
+ 1904              	.LCFI0:
+ 1905              		.cfi_def_cfa_register 12
+ 1906 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1907 0008 04B04CE2 		sub	fp, ip, #4
+ 1908              		.cfi_offset 14, -8
+ 1909              		.cfi_offset 13, -12
+ 1910              		.cfi_offset 11, -16
+ 1911              	.LCFI1:
+ 1912              		.cfi_def_cfa 11, 4
+  24:../intcontroller.c **** 	/* Configuración por defector del controlador de interrupciones:
+  25:../intcontroller.c **** 	 *    Líneas IRQ y FIQ no habilitadas
+  26:../intcontroller.c **** 	 *    Línea IRQ en modo no vectorizado
+  27:../intcontroller.c **** 	 *    Todo por la línea IRQ
+  28:../intcontroller.c **** 	 *    Todas las interrupciones enmascaradas
+  29:../intcontroller.c **** 	 **/
+  30:../intcontroller.c **** 	rINTMOD = 0x0; // Configura las líneas como de tipo IRQ
+ 1913              		.loc 1 30 0
+ 1914 000c 28309FE5 		ldr	r3, .L2
+ 1915 0010 0020A0E3 		mov	r2, #0
+ 1916 0014 002083E5 		str	r2, [r3, #0]
+  31:../intcontroller.c **** 	rINTCON = 0x7; // IRQ y FIQ enmascaradas, IRQ en modo no vectorizado
+ 1917              		.loc 1 31 0
+ 1918 0018 1E36A0E3 		mov	r3, #31457280
+ 1919 001c 0720A0E3 		mov	r2, #7
+ 1920 0020 002083E5 		str	r2, [r3, #0]
+  32:../intcontroller.c **** 	rINTMSK = ~(0x0); // Enmascara todas las líneas
+ 1921              		.loc 1 32 0
+ 1922 0024 14309FE5 		ldr	r3, .L2+4
+ 1923 0028 0020E0E3 		mvn	r2, #0
+ 1924 002c 002083E5 		str	r2, [r3, #0]
+  33:../intcontroller.c **** }
+ 1925              		.loc 1 33 0
+ 1926 0030 0CD04BE2 		sub	sp, fp, #12
+ 1927 0034 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1928 0038 1EFF2FE1 		bx	lr
+ 1929              	.L3:
+ 1930              		.align	2
+ 1931              	.L2:
+ 1932 003c 0800E001 		.word	31457288
+ 1933 0040 0C00E001 		.word	31457292
+ 1934              		.cfi_endproc
+ 1935              	.LFE0:
+ 1937              		.align	2
+ 1938              		.global	ic_conf_irq
+ 1940              	ic_conf_irq:
+ 1941              	.LFB1:
+  34:../intcontroller.c **** 
+  35:../intcontroller.c **** int ic_conf_irq(int st, enum int_vec vec)
+  36:../intcontroller.c **** {
+ 1942              		.loc 1 36 0
+ 1943              		.cfi_startproc
+ 1944              		@ Function supports interworking.
+ 1945              		@ args = 0, pretend = 0, frame = 8
+ 1946              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1947 0044 0DC0A0E1 		mov	ip, sp
+ 1948              	.LCFI2:
+ 1949              		.cfi_def_cfa_register 12
+ 1950 0048 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1951 004c 04B04CE2 		sub	fp, ip, #4
+ 1952              		.cfi_offset 14, -8
+ 1953              		.cfi_offset 13, -12
+ 1954              		.cfi_offset 11, -16
+ 1955              	.LCFI3:
+ 1956              		.cfi_def_cfa 11, 4
+ 1957 0050 08D04DE2 		sub	sp, sp, #8
+ 1958 0054 10000BE5 		str	r0, [fp, #-16]
+ 1959 0058 0130A0E1 		mov	r3, r1
+ 1960 005c 11304BE5 		strb	r3, [fp, #-17]
+  37:../intcontroller.c **** 	//int conf = rINTCON;
+  38:../intcontroller.c **** 
+  39:../intcontroller.c **** 	if (st != 1 && st != 0)
+ 1961              		.loc 1 39 0
+ 1962 0060 10301BE5 		ldr	r3, [fp, #-16]
+ 1963 0064 010053E3 		cmp	r3, #1
+ 1964 0068 0400000A 		beq	.L5
+ 1965              		.loc 1 39 0 is_stmt 0 discriminator 1
+ 1966 006c 10301BE5 		ldr	r3, [fp, #-16]
+ 1967 0070 000053E3 		cmp	r3, #0
+ 1968 0074 0100000A 		beq	.L5
+  40:../intcontroller.c **** 		return -1;
+ 1969              		.loc 1 40 0 is_stmt 1
+ 1970 0078 0030E0E3 		mvn	r3, #0
+ 1971 007c 210000EA 		b	.L6
+ 1972              	.L5:
+  41:../intcontroller.c **** 
+  42:../intcontroller.c **** 	if (vec == VEC){
+ 1973              		.loc 1 42 0
+ 1974 0080 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 1975 0084 000053E3 		cmp	r3, #0
+ 1976 0088 0500001A 		bne	.L7
+  43:../intcontroller.c **** 		rINTCON &=~(0x1 << 2);
+ 1977              		.loc 1 43 0
+ 1978 008c 1E36A0E3 		mov	r3, #31457280
+ 1979 0090 1E26A0E3 		mov	r2, #31457280
+ 1980 0094 002092E5 		ldr	r2, [r2, #0]
+ 1981 0098 0420C2E3 		bic	r2, r2, #4
+ 1982 009c 002083E5 		str	r2, [r3, #0]
+ 1983 00a0 090000EA 		b	.L8
+ 1984              	.L7:
+  44:../intcontroller.c **** 		//COMPLETAR: poner la línea IRQ en modo vectorizado
+  45:../intcontroller.c **** 
+  46:../intcontroller.c **** 	}
+  47:../intcontroller.c **** 	else{
+  48:../intcontroller.c **** 		//COMPLETAR: poner la línea IRQ en modo no vectorizado
+  49:../intcontroller.c **** 		rINTCON &= ~(0x1 << 1);
+ 1985              		.loc 1 49 0
+ 1986 00a4 1E36A0E3 		mov	r3, #31457280
+ 1987 00a8 1E26A0E3 		mov	r2, #31457280
+ 1988 00ac 002092E5 		ldr	r2, [r2, #0]
+ 1989 00b0 0220C2E3 		bic	r2, r2, #2
+ 1990 00b4 002083E5 		str	r2, [r3, #0]
+  50:../intcontroller.c **** 		rINTCON |=(0x1 << 2);
+ 1991              		.loc 1 50 0
+ 1992 00b8 1E36A0E3 		mov	r3, #31457280
+ 1993 00bc 1E26A0E3 		mov	r2, #31457280
+ 1994 00c0 002092E5 		ldr	r2, [r2, #0]
+ 1995 00c4 042082E3 		orr	r2, r2, #4
+ 1996 00c8 002083E5 		str	r2, [r3, #0]
+ 1997              	.L8:
+  51:../intcontroller.c **** 	}
+  52:../intcontroller.c **** 	if (st == 1){
+ 1998              		.loc 1 52 0
+ 1999 00cc 10301BE5 		ldr	r3, [fp, #-16]
+ 2000 00d0 010053E3 		cmp	r3, #1
+ 2001 00d4 0500001A 		bne	.L9
+  53:../intcontroller.c **** 		//COMPLETAR: habilitar la línea IRQ
+  54:../intcontroller.c **** 		rINTCON &=~(0x1 << 1);
+ 2002              		.loc 1 54 0
+ 2003 00d8 1E36A0E3 		mov	r3, #31457280
+ 2004 00dc 1E26A0E3 		mov	r2, #31457280
+ 2005 00e0 002092E5 		ldr	r2, [r2, #0]
+ 2006 00e4 0220C2E3 		bic	r2, r2, #2
+ 2007 00e8 002083E5 		str	r2, [r3, #0]
+ 2008 00ec 040000EA 		b	.L10
+ 2009              	.L9:
+  55:../intcontroller.c **** 
+  56:../intcontroller.c **** 	}
+  57:../intcontroller.c **** 	else{
+  58:../intcontroller.c **** 		//COMPLETAR: deshabilitar la línea IRQ
+  59:../intcontroller.c **** 		rINTCON |=(0x1 << 1);
+ 2010              		.loc 1 59 0
+ 2011 00f0 1E36A0E3 		mov	r3, #31457280
+ 2012 00f4 1E26A0E3 		mov	r2, #31457280
+ 2013 00f8 002092E5 		ldr	r2, [r2, #0]
+ 2014 00fc 022082E3 		orr	r2, r2, #2
+ 2015 0100 002083E5 		str	r2, [r3, #0]
+ 2016              	.L10:
+  60:../intcontroller.c **** 
+  61:../intcontroller.c **** 	}
+  62:../intcontroller.c **** 	//rINTCON = conf;
+  63:../intcontroller.c **** 	return 0;
+ 2017              		.loc 1 63 0
+ 2018 0104 0030A0E3 		mov	r3, #0
+ 2019              	.L6:
+  64:../intcontroller.c **** }
+ 2020              		.loc 1 64 0
+ 2021 0108 0300A0E1 		mov	r0, r3
+ 2022 010c 0CD04BE2 		sub	sp, fp, #12
+ 2023 0110 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2024 0114 1EFF2FE1 		bx	lr
+ 2025              		.cfi_endproc
+ 2026              	.LFE1:
+ 2028              		.align	2
+ 2029              		.global	ic_conf_fiq
+ 2031              	ic_conf_fiq:
+ 2032              	.LFB2:
+  65:../intcontroller.c **** 
+  66:../intcontroller.c **** int ic_conf_fiq(int st)
+  67:../intcontroller.c **** {
+ 2033              		.loc 1 67 0
+ 2034              		.cfi_startproc
+ 2035              		@ Function supports interworking.
+ 2036              		@ args = 0, pretend = 0, frame = 16
+ 2037              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2038 0118 0DC0A0E1 		mov	ip, sp
+ 2039              	.LCFI4:
+ 2040              		.cfi_def_cfa_register 12
+ 2041 011c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2042 0120 04B04CE2 		sub	fp, ip, #4
+ 2043              		.cfi_offset 14, -8
+ 2044              		.cfi_offset 13, -12
+ 2045              		.cfi_offset 11, -16
+ 2046              	.LCFI5:
+ 2047              		.cfi_def_cfa 11, 4
+ 2048 0124 10D04DE2 		sub	sp, sp, #16
+ 2049 0128 18000BE5 		str	r0, [fp, #-24]
+  68:../intcontroller.c **** 	int ret = 0;
+ 2050              		.loc 1 68 0
+ 2051 012c 0030A0E3 		mov	r3, #0
+ 2052 0130 10300BE5 		str	r3, [fp, #-16]
+  69:../intcontroller.c **** 
+  70:../intcontroller.c **** 	if (st == 1){
+ 2053              		.loc 1 70 0
+ 2054 0134 18301BE5 		ldr	r3, [fp, #-24]
+ 2055 0138 010053E3 		cmp	r3, #1
+ 2056 013c 0500001A 		bne	.L12
+  71:../intcontroller.c **** 		//COMPLETAR: habilitar la línea FIQ
+  72:../intcontroller.c **** 		rINTCON &=~(0x1 << 0);
+ 2057              		.loc 1 72 0
+ 2058 0140 1E36A0E3 		mov	r3, #31457280
+ 2059 0144 1E26A0E3 		mov	r2, #31457280
+ 2060 0148 002092E5 		ldr	r2, [r2, #0]
+ 2061 014c 0120C2E3 		bic	r2, r2, #1
+ 2062 0150 002083E5 		str	r2, [r3, #0]
+ 2063 0154 0A0000EA 		b	.L13
+ 2064              	.L12:
+  73:../intcontroller.c **** 	}
+  74:../intcontroller.c **** 	else if (st == 0){
+ 2065              		.loc 1 74 0
+ 2066 0158 18301BE5 		ldr	r3, [fp, #-24]
+ 2067 015c 000053E3 		cmp	r3, #0
+ 2068 0160 0500001A 		bne	.L14
+  75:../intcontroller.c **** 		//COMPLETAR: deshabilitar la línea FIQ
+  76:../intcontroller.c **** 		rINTCON |=(0x1 << 0);
+ 2069              		.loc 1 76 0
+ 2070 0164 1E36A0E3 		mov	r3, #31457280
+ 2071 0168 1E26A0E3 		mov	r2, #31457280
+ 2072 016c 002092E5 		ldr	r2, [r2, #0]
+ 2073 0170 012082E3 		orr	r2, r2, #1
+ 2074 0174 002083E5 		str	r2, [r3, #0]
+ 2075 0178 010000EA 		b	.L13
+ 2076              	.L14:
+  77:../intcontroller.c **** 	}
+  78:../intcontroller.c **** 	else
+  79:../intcontroller.c **** 		ret = -1;
+ 2077              		.loc 1 79 0
+ 2078 017c 0030E0E3 		mvn	r3, #0
+ 2079 0180 10300BE5 		str	r3, [fp, #-16]
+ 2080              	.L13:
+  80:../intcontroller.c **** 
+  81:../intcontroller.c **** 	return ret;
+ 2081              		.loc 1 81 0
+ 2082 0184 10301BE5 		ldr	r3, [fp, #-16]
+  82:../intcontroller.c **** }
+ 2083              		.loc 1 82 0
+ 2084 0188 0300A0E1 		mov	r0, r3
+ 2085 018c 0CD04BE2 		sub	sp, fp, #12
+ 2086 0190 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2087 0194 1EFF2FE1 		bx	lr
+ 2088              		.cfi_endproc
+ 2089              	.LFE2:
+ 2091              		.align	2
+ 2092              		.global	ic_conf_line
+ 2094              	ic_conf_line:
+ 2095              	.LFB3:
+  83:../intcontroller.c **** 
+  84:../intcontroller.c **** int ic_conf_line(enum int_line line, enum int_mode mode)
+  85:../intcontroller.c **** {
+ 2096              		.loc 1 85 0
+ 2097              		.cfi_startproc
+ 2098              		@ Function supports interworking.
+ 2099              		@ args = 0, pretend = 0, frame = 16
+ 2100              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2101 0198 0DC0A0E1 		mov	ip, sp
+ 2102              	.LCFI6:
+ 2103              		.cfi_def_cfa_register 12
+ 2104 019c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2105 01a0 04B04CE2 		sub	fp, ip, #4
+ 2106              		.cfi_offset 14, -8
+ 2107              		.cfi_offset 13, -12
+ 2108              		.cfi_offset 11, -16
+ 2109              	.LCFI7:
+ 2110              		.cfi_def_cfa 11, 4
+ 2111 01a4 10D04DE2 		sub	sp, sp, #16
+ 2112 01a8 0020A0E1 		mov	r2, r0
+ 2113 01ac 0130A0E1 		mov	r3, r1
+ 2114 01b0 15204BE5 		strb	r2, [fp, #-21]
+ 2115 01b4 16304BE5 		strb	r3, [fp, #-22]
+  86:../intcontroller.c **** 	unsigned int bit = INT_BIT(line);
+ 2116              		.loc 1 86 0
+ 2117 01b8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2118 01bc 0120A0E3 		mov	r2, #1
+ 2119 01c0 1233A0E1 		mov	r3, r2, asl r3
+ 2120 01c4 10300BE5 		str	r3, [fp, #-16]
+  87:../intcontroller.c **** 
+  88:../intcontroller.c **** 	if (line < 0 || line > 26)
+ 2121              		.loc 1 88 0
+ 2122 01c8 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2123 01cc 1A0053E3 		cmp	r3, #26
+ 2124 01d0 0100009A 		bls	.L16
+  89:../intcontroller.c **** 		return -1;
+ 2125              		.loc 1 89 0
+ 2126 01d4 0030E0E3 		mvn	r3, #0
+ 2127 01d8 1D0000EA 		b	.L17
+ 2128              	.L16:
+  90:../intcontroller.c **** 
+  91:../intcontroller.c **** 	if (mode != IRQ && mode != FIQ)
+ 2129              		.loc 1 91 0
+ 2130 01dc 16305BE5 		ldrb	r3, [fp, #-22]	@ zero_extendqisi2
+ 2131 01e0 000053E3 		cmp	r3, #0
+ 2132 01e4 0400000A 		beq	.L18
+ 2133              		.loc 1 91 0 is_stmt 0 discriminator 1
+ 2134 01e8 16305BE5 		ldrb	r3, [fp, #-22]	@ zero_extendqisi2
+ 2135 01ec 010053E3 		cmp	r3, #1
+ 2136 01f0 0100000A 		beq	.L18
+  92:../intcontroller.c **** 		return -1;
+ 2137              		.loc 1 92 0 is_stmt 1
+ 2138 01f4 0030E0E3 		mvn	r3, #0
+ 2139 01f8 150000EA 		b	.L17
+ 2140              	.L18:
+  93:../intcontroller.c **** 
+  94:../intcontroller.c **** 	if (mode == IRQ){
+ 2141              		.loc 1 94 0
+ 2142 01fc 16305BE5 		ldrb	r3, [fp, #-22]	@ zero_extendqisi2
+ 2143 0200 000053E3 		cmp	r3, #0
+ 2144 0204 0900001A 		bne	.L19
+  95:../intcontroller.c **** 		//COMPLETAR: poner la línea indicada en line en modo IRQ
+  96:../intcontroller.c **** 		rINTMOD &=~(0x1 << line);
+ 2145              		.loc 1 96 0
+ 2146 0208 54309FE5 		ldr	r3, .L21
+ 2147 020c 50209FE5 		ldr	r2, .L21
+ 2148 0210 001092E5 		ldr	r1, [r2, #0]
+ 2149 0214 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 2150 0218 0100A0E3 		mov	r0, #1
+ 2151 021c 1022A0E1 		mov	r2, r0, asl r2
+ 2152 0220 0220E0E1 		mvn	r2, r2
+ 2153 0224 022001E0 		and	r2, r1, r2
+ 2154 0228 002083E5 		str	r2, [r3, #0]
+ 2155 022c 070000EA 		b	.L20
+ 2156              	.L19:
+  97:../intcontroller.c **** 	}
+  98:../intcontroller.c **** 	else{
+  99:../intcontroller.c **** 		//COMPLETAR: poner la línea indicada en line en modo FIQ
+ 100:../intcontroller.c **** 		rINTMOD |=(0x1 << line);
+ 2157              		.loc 1 100 0
+ 2158 0230 2C309FE5 		ldr	r3, .L21
+ 2159 0234 28209FE5 		ldr	r2, .L21
+ 2160 0238 001092E5 		ldr	r1, [r2, #0]
+ 2161 023c 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 2162 0240 0100A0E3 		mov	r0, #1
+ 2163 0244 1022A0E1 		mov	r2, r0, asl r2
+ 2164 0248 022081E1 		orr	r2, r1, r2
+ 2165 024c 002083E5 		str	r2, [r3, #0]
+ 2166              	.L20:
+ 101:../intcontroller.c **** 
+ 102:../intcontroller.c **** 	}
+ 103:../intcontroller.c **** 	return 0;
+ 2167              		.loc 1 103 0
+ 2168 0250 0030A0E3 		mov	r3, #0
+ 2169              	.L17:
+ 104:../intcontroller.c **** }
+ 2170              		.loc 1 104 0
+ 2171 0254 0300A0E1 		mov	r0, r3
+ 2172 0258 0CD04BE2 		sub	sp, fp, #12
+ 2173 025c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2174 0260 1EFF2FE1 		bx	lr
+ 2175              	.L22:
+ 2176              		.align	2
+ 2177              	.L21:
+ 2178 0264 0800E001 		.word	31457288
+ 2179              		.cfi_endproc
+ 2180              	.LFE3:
+ 2182              		.align	2
+ 2183              		.global	ic_enable
+ 2185              	ic_enable:
+ 2186              	.LFB4:
+ 105:../intcontroller.c **** 
+ 106:../intcontroller.c **** int ic_enable(enum int_line line)
+ 107:../intcontroller.c **** {
+ 2187              		.loc 1 107 0
+ 2188              		.cfi_startproc
+ 2189              		@ Function supports interworking.
+ 2190              		@ args = 0, pretend = 0, frame = 8
+ 2191              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2192 0268 0DC0A0E1 		mov	ip, sp
+ 2193              	.LCFI8:
+ 2194              		.cfi_def_cfa_register 12
+ 2195 026c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2196 0270 04B04CE2 		sub	fp, ip, #4
+ 2197              		.cfi_offset 14, -8
+ 2198              		.cfi_offset 13, -12
+ 2199              		.cfi_offset 11, -16
+ 2200              	.LCFI9:
+ 2201              		.cfi_def_cfa 11, 4
+ 2202 0274 08D04DE2 		sub	sp, sp, #8
+ 2203 0278 0030A0E1 		mov	r3, r0
+ 2204 027c 0D304BE5 		strb	r3, [fp, #-13]
+ 108:../intcontroller.c **** 	if (line < 0 || line > 26)
+ 2205              		.loc 1 108 0
+ 2206 0280 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2207 0284 1A0053E3 		cmp	r3, #26
+ 2208 0288 0100009A 		bls	.L24
+ 109:../intcontroller.c **** 		return -1;
+ 2209              		.loc 1 109 0
+ 2210 028c 0030E0E3 		mvn	r3, #0
+ 2211 0290 0E0000EA 		b	.L25
+ 2212              	.L24:
+ 110:../intcontroller.c **** 
+ 111:../intcontroller.c **** 	//COMPLETAR: habilitar las interrupciones por la línea indica en line
+ 112:../intcontroller.c **** 	//habilitar también bit global
+ 113:../intcontroller.c **** 	rINTMSK &= ~(0x1 << line);
+ 2213              		.loc 1 113 0
+ 2214 0294 44309FE5 		ldr	r3, .L26
+ 2215 0298 40209FE5 		ldr	r2, .L26
+ 2216 029c 001092E5 		ldr	r1, [r2, #0]
+ 2217 02a0 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 2218 02a4 0100A0E3 		mov	r0, #1
+ 2219 02a8 1022A0E1 		mov	r2, r0, asl r2
+ 2220 02ac 0220E0E1 		mvn	r2, r2
+ 2221 02b0 022001E0 		and	r2, r1, r2
+ 2222 02b4 002083E5 		str	r2, [r3, #0]
+ 114:../intcontroller.c **** 	rINTMSK &= ~(0x1 << 26);
+ 2223              		.loc 1 114 0
+ 2224 02b8 20309FE5 		ldr	r3, .L26
+ 2225 02bc 1C209FE5 		ldr	r2, .L26
+ 2226 02c0 002092E5 		ldr	r2, [r2, #0]
+ 2227 02c4 0123C2E3 		bic	r2, r2, #67108864
+ 2228 02c8 002083E5 		str	r2, [r3, #0]
+ 115:../intcontroller.c **** 
+ 116:../intcontroller.c **** 	return 0;
+ 2229              		.loc 1 116 0
+ 2230 02cc 0030A0E3 		mov	r3, #0
+ 2231              	.L25:
+ 117:../intcontroller.c **** }
+ 2232              		.loc 1 117 0
+ 2233 02d0 0300A0E1 		mov	r0, r3
+ 2234 02d4 0CD04BE2 		sub	sp, fp, #12
+ 2235 02d8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2236 02dc 1EFF2FE1 		bx	lr
+ 2237              	.L27:
+ 2238              		.align	2
+ 2239              	.L26:
+ 2240 02e0 0C00E001 		.word	31457292
+ 2241              		.cfi_endproc
+ 2242              	.LFE4:
+ 2244              		.align	2
+ 2245              		.global	ic_disable
+ 2247              	ic_disable:
+ 2248              	.LFB5:
+ 118:../intcontroller.c **** 
+ 119:../intcontroller.c **** int ic_disable(enum int_line line)
+ 120:../intcontroller.c **** {
+ 2249              		.loc 1 120 0
+ 2250              		.cfi_startproc
+ 2251              		@ Function supports interworking.
+ 2252              		@ args = 0, pretend = 0, frame = 8
+ 2253              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2254 02e4 0DC0A0E1 		mov	ip, sp
+ 2255              	.LCFI10:
+ 2256              		.cfi_def_cfa_register 12
+ 2257 02e8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2258 02ec 04B04CE2 		sub	fp, ip, #4
+ 2259              		.cfi_offset 14, -8
+ 2260              		.cfi_offset 13, -12
+ 2261              		.cfi_offset 11, -16
+ 2262              	.LCFI11:
+ 2263              		.cfi_def_cfa 11, 4
+ 2264 02f0 08D04DE2 		sub	sp, sp, #8
+ 2265 02f4 0030A0E1 		mov	r3, r0
+ 2266 02f8 0D304BE5 		strb	r3, [fp, #-13]
+ 121:../intcontroller.c **** 	if (line < 0 || line > 26)
+ 2267              		.loc 1 121 0
+ 2268 02fc 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 2269 0300 1A0053E3 		cmp	r3, #26
+ 2270 0304 0100009A 		bls	.L29
+ 122:../intcontroller.c **** 		return -1;
+ 2271              		.loc 1 122 0
+ 2272 0308 0030E0E3 		mvn	r3, #0
+ 2273 030c 080000EA 		b	.L30
+ 2274              	.L29:
+ 123:../intcontroller.c **** 
+ 124:../intcontroller.c **** 	//COMPLETAR: enmascarar las interrupciones por la línea indicada en line
+ 125:../intcontroller.c **** 	rINTMSK |= (0x1 << line);
+ 2275              		.loc 1 125 0
+ 2276 0310 2C309FE5 		ldr	r3, .L31
+ 2277 0314 28209FE5 		ldr	r2, .L31
+ 2278 0318 001092E5 		ldr	r1, [r2, #0]
+ 2279 031c 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 2280 0320 0100A0E3 		mov	r0, #1
+ 2281 0324 1022A0E1 		mov	r2, r0, asl r2
+ 2282 0328 022081E1 		orr	r2, r1, r2
+ 2283 032c 002083E5 		str	r2, [r3, #0]
+ 126:../intcontroller.c **** 	//rINTMSK |= (0x1 << 26);
+ 127:../intcontroller.c **** 
+ 128:../intcontroller.c **** 	return 0;
+ 2284              		.loc 1 128 0
+ 2285 0330 0030A0E3 		mov	r3, #0
+ 2286              	.L30:
+ 129:../intcontroller.c **** }
+ 2287              		.loc 1 129 0
+ 2288 0334 0300A0E1 		mov	r0, r3
+ 2289 0338 0CD04BE2 		sub	sp, fp, #12
+ 2290 033c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2291 0340 1EFF2FE1 		bx	lr
+ 2292              	.L32:
+ 2293              		.align	2
+ 2294              	.L31:
+ 2295 0344 0C00E001 		.word	31457292
+ 2296              		.cfi_endproc
+ 2297              	.LFE5:
+ 2299              		.align	2
+ 2300              		.global	ic_cleanflag
+ 2302              	ic_cleanflag:
+ 2303              	.LFB6:
+ 130:../intcontroller.c **** 
+ 131:../intcontroller.c **** int ic_cleanflag(enum int_line line)
+ 132:../intcontroller.c **** {
+ 2304              		.loc 1 132 0
+ 2305              		.cfi_startproc
+ 2306              		@ Function supports interworking.
+ 2307              		@ args = 0, pretend = 0, frame = 16
+ 2308              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2309 0348 0DC0A0E1 		mov	ip, sp
+ 2310              	.LCFI12:
+ 2311              		.cfi_def_cfa_register 12
+ 2312 034c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2313 0350 04B04CE2 		sub	fp, ip, #4
+ 2314              		.cfi_offset 14, -8
+ 2315              		.cfi_offset 13, -12
+ 2316              		.cfi_offset 11, -16
+ 2317              	.LCFI13:
+ 2318              		.cfi_def_cfa 11, 4
+ 2319 0354 10D04DE2 		sub	sp, sp, #16
+ 2320 0358 0030A0E1 		mov	r3, r0
+ 2321 035c 15304BE5 		strb	r3, [fp, #-21]
+ 133:../intcontroller.c **** 	int bit;
+ 134:../intcontroller.c **** 
+ 135:../intcontroller.c **** 	if (line < 0 || line > 26)
+ 2322              		.loc 1 135 0
+ 2323 0360 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2324 0364 1A0053E3 		cmp	r3, #26
+ 2325 0368 0100009A 		bls	.L34
+ 136:../intcontroller.c **** 		return -1;
+ 2326              		.loc 1 136 0
+ 2327 036c 0030E0E3 		mvn	r3, #0
+ 2328 0370 1B0000EA 		b	.L35
+ 2329              	.L34:
+ 137:../intcontroller.c **** 
+ 138:../intcontroller.c **** 	bit = INT_BIT(line);
+ 2330              		.loc 1 138 0
+ 2331 0374 15305BE5 		ldrb	r3, [fp, #-21]	@ zero_extendqisi2
+ 2332 0378 0120A0E3 		mov	r2, #1
+ 2333 037c 1233A0E1 		mov	r3, r2, asl r3
+ 2334 0380 10300BE5 		str	r3, [fp, #-16]
+ 139:../intcontroller.c **** 
+ 140:../intcontroller.c **** 	if (rINTMOD & bit){
+ 2335              		.loc 1 140 0
+ 2336 0384 68309FE5 		ldr	r3, .L38
+ 2337 0388 002093E5 		ldr	r2, [r3, #0]
+ 2338 038c 10301BE5 		ldr	r3, [fp, #-16]
+ 2339 0390 033002E0 		and	r3, r2, r3
+ 2340 0394 000053E3 		cmp	r3, #0
+ 2341 0398 0800000A 		beq	.L36
+ 141:../intcontroller.c **** 		//COMPLETAR: borrar el flag de interrupción correspondiente a la línea indicada en line
+ 142:../intcontroller.c **** 		//con la línea configurada por FIQ
+ 143:../intcontroller.c **** 		rF_ISPC |=(0x1 << line);
+ 2342              		.loc 1 143 0
+ 2343 039c 54309FE5 		ldr	r3, .L38+4
+ 2344 03a0 50209FE5 		ldr	r2, .L38+4
+ 2345 03a4 001092E5 		ldr	r1, [r2, #0]
+ 2346 03a8 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 2347 03ac 0100A0E3 		mov	r0, #1
+ 2348 03b0 1022A0E1 		mov	r2, r0, asl r2
+ 2349 03b4 022081E1 		orr	r2, r1, r2
+ 2350 03b8 002083E5 		str	r2, [r3, #0]
+ 2351 03bc 070000EA 		b	.L37
+ 2352              	.L36:
+ 144:../intcontroller.c **** 
+ 145:../intcontroller.c **** 	}
+ 146:../intcontroller.c **** 	else{
+ 147:../intcontroller.c **** 		rI_ISPC |=(0x1 << line);
+ 2353              		.loc 1 147 0
+ 2354 03c0 34309FE5 		ldr	r3, .L38+8
+ 2355 03c4 30209FE5 		ldr	r2, .L38+8
+ 2356 03c8 001092E5 		ldr	r1, [r2, #0]
+ 2357 03cc 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 2358 03d0 0100A0E3 		mov	r0, #1
+ 2359 03d4 1022A0E1 		mov	r2, r0, asl r2
+ 2360 03d8 022081E1 		orr	r2, r1, r2
+ 2361 03dc 002083E5 		str	r2, [r3, #0]
+ 2362              	.L37:
+ 148:../intcontroller.c **** 		//COMPLETAR: borrar el flag de interrupción correspondiente a la línea indicada en line
+ 149:../intcontroller.c **** 		//con la línea configurada por IRQ
+ 150:../intcontroller.c **** 
+ 151:../intcontroller.c **** 
+ 152:../intcontroller.c **** 	}
+ 153:../intcontroller.c **** 	return 0;
+ 2363              		.loc 1 153 0
+ 2364 03e0 0030A0E3 		mov	r3, #0
+ 2365              	.L35:
+ 154:../intcontroller.c **** }
+ 2366              		.loc 1 154 0
+ 2367 03e4 0300A0E1 		mov	r0, r3
+ 2368 03e8 0CD04BE2 		sub	sp, fp, #12
+ 2369 03ec 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2370 03f0 1EFF2FE1 		bx	lr
+ 2371              	.L39:
+ 2372              		.align	2
+ 2373              	.L38:
+ 2374 03f4 0800E001 		.word	31457288
+ 2375 03f8 3C00E001 		.word	31457340
+ 2376 03fc 2400E001 		.word	31457316
+ 2377              		.cfi_endproc
+ 2378              	.LFE6:
+ 2380              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 intcontroller.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:1893   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:1896   .text:00000000 ic_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:1932   .text:0000003c $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:1937   .text:00000044 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:1940   .text:00000044 ic_conf_irq
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2031   .text:00000118 ic_conf_fiq
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2094   .text:00000198 ic_conf_line
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2178   .text:00000264 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2182   .text:00000268 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2185   .text:00000268 ic_enable
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2240   .text:000002e0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2244   .text:000002e4 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2247   .text:000002e4 ic_disable
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2295   .text:00000344 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2299   .text:00000348 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2302   .text:00000348 ic_cleanflag
+C:\Users\USUARI~1\AppData\Local\Temp\ccHaXLz4.s:2374   .text:000003f4 $d
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

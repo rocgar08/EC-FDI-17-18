@@ -1,0 +1,736 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 2933              		.align	2
+ 2934              		.global	sys_init
+ 2936              	sys_init:
+ 2937              	.LFB0:
+   1:../main.c     **** /*-------------------------------------------------------------------
+   2:../main.c     **** **
+   3:../main.c     **** **  Fichero:
+   4:../main.c     **** **    main.c  11/2/2016
+   5:../main.c     **** **
+   6:../main.c     **** **  Notas de diseño:
+   7:../main.c     **** **    - El buffer de memoria del LCD esta en 0x0c200000 (es programable)
+   8:../main.c     **** **      y es de tamaño 0x9600B (320x240px y con 2px/B)
+   9:../main.c     **** **    - Las 36 imagenes a visualizar consecutivamente en el LCD están
+  10:../main.c     **** **      ubicadas a partir de la dirección 0x0c400000 cada 0x10000B,
+  11:../main.c     **** **      cada una ocupa 0x9600B y se indican en el fichero load_img.text
+  12:../main.c     **** **
+  13:../main.c     **** **-----------------------------------------------------------------*/
+  14:../main.c     **** 
+  15:../main.c     **** 
+  16:../main.c     **** #include "44b.h"
+  17:../main.c     **** #include "44blib.h"
+  18:../main.c     **** #include <stdio.h>
+  19:../main.c     **** #include "option.h"
+  20:../main.c     **** #include "dma.h"
+  21:../main.c     **** #include "uart.h"
+  22:../main.c     **** #include "utils.h"
+  23:../main.c     **** #include "intcontroller.h"
+  24:../main.c     **** #include "timer.h"
+  25:../main.c     **** #include "gpio.h"
+  26:../main.c     **** #include "button.h"
+  27:../main.c     **** 
+  28:../main.c     **** /*
+  29:../main.c     **** ** El buffer de memoria del LCD esta en 0x0c200000 y es de tamaño 0x9600B
+  30:../main.c     **** ** (El LCD tiene 320x240px y en memoria cada byte contiene 2px)
+  31:../main.c     **** **
+  32:../main.c     **** */
+  33:../main.c     **** 
+  34:../main.c     **** void timer0_isr( void ) __attribute__ ((interrupt ("IRQ")));
+  35:../main.c     **** 
+  36:../main.c     **** 
+  37:../main.c     **** 
+  38:../main.c     **** void sys_init( void )
+  39:../main.c     **** {
+ 2938              		.loc 1 39 0
+ 2939              		.cfi_startproc
+ 2940              		@ Function supports interworking.
+ 2941              		@ args = 0, pretend = 0, frame = 0
+ 2942              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2943 0000 0DC0A0E1 		mov	ip, sp
+ 2944              	.LCFI0:
+ 2945              		.cfi_def_cfa_register 12
+ 2946 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2947 0008 04B04CE2 		sub	fp, ip, #4
+ 2948              		.cfi_offset 14, -8
+ 2949              		.cfi_offset 13, -12
+ 2950              		.cfi_offset 11, -16
+ 2951              	.LCFI1:
+ 2952              		.cfi_def_cfa 11, 4
+  40:../main.c     **** 	rWTCON  = 0;		// deshabilita el watchdog
+ 2953              		.loc 1 40 0
+ 2954 000c 94309FE5 		ldr	r3, .L2
+ 2955 0010 0020A0E3 		mov	r2, #0
+ 2956 0014 002083E5 		str	r2, [r3, #0]
+  41:../main.c     **** 	rINTMSK = ~0;		// enmascara todas las interrupciones
+ 2957              		.loc 1 41 0
+ 2958 0018 8C309FE5 		ldr	r3, .L2+4
+ 2959 001c 0020E0E3 		mvn	r2, #0
+ 2960 0020 002083E5 		str	r2, [r3, #0]
+  42:../main.c     **** 
+  43:../main.c     **** 	// Configuracion del gestor de reloj
+  44:../main.c     **** 	rLOCKTIME = 0xfff;	// estabilizacion del PLL = 512 us
+ 2961              		.loc 1 44 0
+ 2962 0024 84309FE5 		ldr	r3, .L2+8
+ 2963 0028 84209FE5 		ldr	r2, .L2+12
+ 2964 002c 002083E5 		str	r2, [r3, #0]
+  45:../main.c     **** 	rPLLCON   = 0x38021;	// MCLK = 64MHz
+ 2965              		.loc 1 45 0
+ 2966 0030 7637A0E3 		mov	r3, #30932992
+ 2967 0034 7C209FE5 		ldr	r2, .L2+16
+ 2968 0038 002083E5 		str	r2, [r3, #0]
+  46:../main.c     **** 	rCLKSLOW  = 0x8;		// MCLK_SLOW = 500 KHz
+ 2969              		.loc 1 46 0
+ 2970 003c 78309FE5 		ldr	r3, .L2+20
+ 2971 0040 0820A0E3 		mov	r2, #8
+ 2972 0044 002083E5 		str	r2, [r3, #0]
+  47:../main.c     **** 	rCLKCON   = 0x7ff8;	// modo NORMAL y reloj distribuido a todos los controladores
+ 2973              		.loc 1 47 0
+ 2974 0048 70309FE5 		ldr	r3, .L2+24
+ 2975 004c 70209FE5 		ldr	r2, .L2+28
+ 2976 0050 002083E5 		str	r2, [r3, #0]
+  48:../main.c     **** 
+  49:../main.c     **** 	// Configuracion del arbitro de bus
+  50:../main.c     **** 	// prioridad fija por defecto LCD > ZDMA > BDMA > IRQ
+  51:../main.c     ****      rSBUSCON = 0x8000001b;	
+ 2977              		.loc 1 51 0
+ 2978 0054 7137A0E3 		mov	r3, #29622272
+ 2979 0058 6E21A0E3 		mov	r2, #-2147483621
+ 2980 005c 002083E5 		str	r2, [r3, #0]
+  52:../main.c     **** 
+  53:../main.c     **** 	// Configuracion de cache
+  54:../main.c     **** 	rSYSCFG = 0;				// deshabilitada
+ 2981              		.loc 1 54 0
+ 2982 0060 0735A0E3 		mov	r3, #29360128
+ 2983 0064 0020A0E3 		mov	r2, #0
+ 2984 0068 002083E5 		str	r2, [r3, #0]
+  55:../main.c     **** 
+  56:../main.c     **** 	// Configuracion del controlador de interrupciones
+  57:../main.c     **** 	rI_PMST = 0x1f1b;	// prioridades fijas por defecto
+ 2985              		.loc 1 57 0
+ 2986 006c 54309FE5 		ldr	r3, .L2+32
+ 2987 0070 54209FE5 		ldr	r2, .L2+36
+ 2988 0074 002083E5 		str	r2, [r3, #0]
+  58:../main.c     **** 	rI_PSLV = 0x1b1b1b1b;
+ 2989              		.loc 1 58 0
+ 2990 0078 50309FE5 		ldr	r3, .L2+40
+ 2991 007c 50209FE5 		ldr	r2, .L2+44
+ 2992 0080 002083E5 		str	r2, [r3, #0]
+  59:../main.c     **** 	
+  60:../main.c     **** 	rEXTINTPND = ~0;			// borra las interrupciones externas pendientes por linea EINT7..4
+ 2993              		.loc 1 60 0
+ 2994 0084 4C309FE5 		ldr	r3, .L2+48
+ 2995 0088 0020E0E3 		mvn	r2, #0
+ 2996 008c 002083E5 		str	r2, [r3, #0]
+  61:../main.c     ****     rI_ISPC = ~0;			// borra todas las interrupciones pendientes
+ 2997              		.loc 1 61 0
+ 2998 0090 44309FE5 		ldr	r3, .L2+52
+ 2999 0094 0020E0E3 		mvn	r2, #0
+ 3000 0098 002083E5 		str	r2, [r3, #0]
+  62:../main.c     **** }	
+ 3001              		.loc 1 62 0
+ 3002 009c 0CD04BE2 		sub	sp, fp, #12
+ 3003 00a0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3004 00a4 1EFF2FE1 		bx	lr
+ 3005              	.L3:
+ 3006              		.align	2
+ 3007              	.L2:
+ 3008 00a8 0000D301 		.word	30605312
+ 3009 00ac 0C00E001 		.word	31457292
+ 3010 00b0 0C00D801 		.word	30933004
+ 3011 00b4 FF0F0000 		.word	4095
+ 3012 00b8 21800300 		.word	229409
+ 3013 00bc 0800D801 		.word	30933000
+ 3014 00c0 0400D801 		.word	30932996
+ 3015 00c4 F87F0000 		.word	32760
+ 3016 00c8 1400E001 		.word	31457300
+ 3017 00cc 1B1F0000 		.word	7963
+ 3018 00d0 1000E001 		.word	31457296
+ 3019 00d4 1B1B1B1B 		.word	454761243
+ 3020 00d8 5400D201 		.word	30539860
+ 3021 00dc 2400E001 		.word	31457316
+ 3022              		.cfi_endproc
+ 3023              	.LFE0:
+ 3025              		.align	2
+ 3026              		.global	lcd_init
+ 3028              	lcd_init:
+ 3029              	.LFB1:
+  63:../main.c     **** 
+  64:../main.c     **** void lcd_init( void )
+  65:../main.c     **** {      
+ 3030              		.loc 1 65 0
+ 3031              		.cfi_startproc
+ 3032              		@ Function supports interworking.
+ 3033              		@ args = 0, pretend = 0, frame = 0
+ 3034              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3035 00e0 0DC0A0E1 		mov	ip, sp
+ 3036              	.LCFI2:
+ 3037              		.cfi_def_cfa_register 12
+ 3038 00e4 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3039 00e8 04B04CE2 		sub	fp, ip, #4
+ 3040              		.cfi_offset 14, -8
+ 3041              		.cfi_offset 13, -12
+ 3042              		.cfi_offset 11, -16
+ 3043              	.LCFI3:
+ 3044              		.cfi_def_cfa 11, 4
+  66:../main.c     **** 	rDITHMODE = 0x12210;
+ 3045              		.loc 1 66 0
+ 3046 00ec DC309FE5 		ldr	r3, .L5
+ 3047 00f0 DC209FE5 		ldr	r2, .L5+4
+ 3048 00f4 002083E5 		str	r2, [r3, #0]
+  67:../main.c     **** 	rDP1_2    = 0xa5a5;
+ 3049              		.loc 1 67 0
+ 3050 00f8 D8309FE5 		ldr	r3, .L5+8
+ 3051 00fc D8209FE5 		ldr	r2, .L5+12
+ 3052 0100 002083E5 		str	r2, [r3, #0]
+  68:../main.c     **** 	rDP4_7    = 0xba5da65;
+ 3053              		.loc 1 68 0
+ 3054 0104 D4309FE5 		ldr	r3, .L5+16
+ 3055 0108 D4209FE5 		ldr	r2, .L5+20
+ 3056 010c 002083E5 		str	r2, [r3, #0]
+  69:../main.c     **** 	rDP3_5    = 0xa5a5f;
+ 3057              		.loc 1 69 0
+ 3058 0110 D0309FE5 		ldr	r3, .L5+24
+ 3059 0114 D0209FE5 		ldr	r2, .L5+28
+ 3060 0118 002083E5 		str	r2, [r3, #0]
+  70:../main.c     **** 	rDP2_3    = 0xd6b;
+ 3061              		.loc 1 70 0
+ 3062 011c CC309FE5 		ldr	r3, .L5+32
+ 3063 0120 CC209FE5 		ldr	r2, .L5+36
+ 3064 0124 002083E5 		str	r2, [r3, #0]
+  71:../main.c     **** 	rDP5_7    = 0xeb7b5ed;
+ 3065              		.loc 1 71 0
+ 3066 0128 C8309FE5 		ldr	r3, .L5+40
+ 3067 012c C8209FE5 		ldr	r2, .L5+44
+ 3068 0130 002083E5 		str	r2, [r3, #0]
+  72:../main.c     **** 	rDP3_4    = 0x7dbe;
+ 3069              		.loc 1 72 0
+ 3070 0134 C4309FE5 		ldr	r3, .L5+48
+ 3071 0138 C4209FE5 		ldr	r2, .L5+52
+ 3072 013c 002083E5 		str	r2, [r3, #0]
+  73:../main.c     **** 	rDP4_5    = 0x7ebdf;
+ 3073              		.loc 1 73 0
+ 3074 0140 C0309FE5 		ldr	r3, .L5+56
+ 3075 0144 C0209FE5 		ldr	r2, .L5+60
+ 3076 0148 002083E5 		str	r2, [r3, #0]
+  74:../main.c     **** 	rDP6_7    = 0x7fdfbfe;
+ 3077              		.loc 1 74 0
+ 3078 014c BC309FE5 		ldr	r3, .L5+64
+ 3079 0150 BC209FE5 		ldr	r2, .L5+68
+ 3080 0154 002083E5 		str	r2, [r3, #0]
+  75:../main.c     **** 	
+  76:../main.c     **** 	rREDLUT   = 0;
+ 3081              		.loc 1 76 0
+ 3082 0158 B8309FE5 		ldr	r3, .L5+72
+ 3083 015c 0020A0E3 		mov	r2, #0
+ 3084 0160 002083E5 		str	r2, [r3, #0]
+  77:../main.c     **** 	rGREENLUT = 0;
+ 3085              		.loc 1 77 0
+ 3086 0164 B0309FE5 		ldr	r3, .L5+76
+ 3087 0168 0020A0E3 		mov	r2, #0
+ 3088 016c 002083E5 		str	r2, [r3, #0]
+  78:../main.c     **** 	rBLUELUT  = 0;
+ 3089              		.loc 1 78 0
+ 3090 0170 A8309FE5 		ldr	r3, .L5+80
+ 3091 0174 0020A0E3 		mov	r2, #0
+ 3092 0178 002083E5 		str	r2, [r3, #0]
+  79:../main.c     **** 
+  80:../main.c     **** 	// indica al controlador de LCD que el buffer LCD esta en la dirección 0x0c200000 y es de tamaño 0
+  81:../main.c     **** 	rLCDSADDR1 = 0x16100000;
+ 3093              		.loc 1 81 0
+ 3094 017c A0309FE5 		ldr	r3, .L5+84
+ 3095 0180 A0209FE5 		ldr	r2, .L5+88
+ 3096 0184 002083E5 		str	r2, [r3, #0]
+  82:../main.c     **** 	rLCDSADDR2 = 0x20104B00;
+ 3097              		.loc 1 82 0
+ 3098 0188 9C309FE5 		ldr	r3, .L5+92
+ 3099 018c 9C209FE5 		ldr	r2, .L5+96
+ 3100 0190 002083E5 		str	r2, [r3, #0]
+  83:../main.c     **** 	rLCDSADDR3 = 0x50;
+ 3101              		.loc 1 83 0
+ 3102 0194 98309FE5 		ldr	r3, .L5+100
+ 3103 0198 5020A0E3 		mov	r2, #80
+ 3104 019c 002083E5 		str	r2, [r3, #0]
+  84:../main.c     **** 
+  85:../main.c     **** 	rLCDCON2  = 0x13cef;
+ 3105              		.loc 1 85 0
+ 3106 01a0 90309FE5 		ldr	r3, .L5+104
+ 3107 01a4 90209FE5 		ldr	r2, .L5+108
+ 3108 01a8 002083E5 		str	r2, [r3, #0]
+  86:../main.c     **** 	rLCDCON3  = 0;
+ 3109              		.loc 1 86 0
+ 3110 01ac 8C309FE5 		ldr	r3, .L5+112
+ 3111 01b0 0020A0E3 		mov	r2, #0
+ 3112 01b4 002083E5 		str	r2, [r3, #0]
+  87:../main.c     **** 	rLCDCON1   = 0xc021; // refresco a 120 Hz
+ 3113              		.loc 1 87 0
+ 3114 01b8 1F36A0E3 		mov	r3, #32505856
+ 3115 01bc 80209FE5 		ldr	r2, .L5+116
+ 3116 01c0 002083E5 		str	r2, [r3, #0]
+  88:../main.c     **** }
+ 3117              		.loc 1 88 0
+ 3118 01c4 0CD04BE2 		sub	sp, fp, #12
+ 3119 01c8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3120 01cc 1EFF2FE1 		bx	lr
+ 3121              	.L6:
+ 3122              		.align	2
+ 3123              	.L5:
+ 3124 01d0 4400F001 		.word	32505924
+ 3125 01d4 10220100 		.word	74256
+ 3126 01d8 2000F001 		.word	32505888
+ 3127 01dc A5A50000 		.word	42405
+ 3128 01e0 2400F001 		.word	32505892
+ 3129 01e4 65DAA50B 		.word	195418725
+ 3130 01e8 2800F001 		.word	32505896
+ 3131 01ec 5F5A0A00 		.word	678495
+ 3132 01f0 2C00F001 		.word	32505900
+ 3133 01f4 6B0D0000 		.word	3435
+ 3134 01f8 3000F001 		.word	32505904
+ 3135 01fc EDB5B70E 		.word	246920685
+ 3136 0200 3400F001 		.word	32505908
+ 3137 0204 BE7D0000 		.word	32190
+ 3138 0208 3800F001 		.word	32505912
+ 3139 020c DFEB0700 		.word	519135
+ 3140 0210 3C00F001 		.word	32505916
+ 3141 0214 FEFBFD07 		.word	134085630
+ 3142 0218 1400F001 		.word	32505876
+ 3143 021c 1800F001 		.word	32505880
+ 3144 0220 1C00F001 		.word	32505884
+ 3145 0224 0800F001 		.word	32505864
+ 3146 0228 00001016 		.word	370147328
+ 3147 022c 0C00F001 		.word	32505868
+ 3148 0230 004B1020 		.word	537938688
+ 3149 0234 1000F001 		.word	32505872
+ 3150 0238 0400F001 		.word	32505860
+ 3151 023c EF3C0100 		.word	81135
+ 3152 0240 4000F001 		.word	32505920
+ 3153 0244 21C00000 		.word	49185
+ 3154              		.cfi_endproc
+ 3155              	.LFE1:
+ 3157              		.align	2
+ 3158              		.global	putImageNoDMA
+ 3160              	putImageNoDMA:
+ 3161              	.LFB2:
+  89:../main.c     **** 
+  90:../main.c     **** 
+  91:../main.c     **** void putImageNoDMA( unsigned int imgDir )
+  92:../main.c     **** {
+ 3162              		.loc 1 92 0
+ 3163              		.cfi_startproc
+ 3164              		@ Function supports interworking.
+ 3165              		@ args = 0, pretend = 0, frame = 24
+ 3166              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3167 0248 0DC0A0E1 		mov	ip, sp
+ 3168              	.LCFI4:
+ 3169              		.cfi_def_cfa_register 12
+ 3170 024c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3171 0250 04B04CE2 		sub	fp, ip, #4
+ 3172              		.cfi_offset 14, -8
+ 3173              		.cfi_offset 13, -12
+ 3174              		.cfi_offset 11, -16
+ 3175              	.LCFI5:
+ 3176              		.cfi_def_cfa 11, 4
+ 3177 0254 18D04DE2 		sub	sp, sp, #24
+ 3178 0258 20000BE5 		str	r0, [fp, #-32]
+  93:../main.c     **** 	unsigned int i;
+  94:../main.c     **** 	unsigned char *src, *dst;
+  95:../main.c     **** 
+  96:../main.c     **** 	src = (unsigned char *) imgDir;
+ 3179              		.loc 1 96 0
+ 3180 025c 20301BE5 		ldr	r3, [fp, #-32]
+ 3181 0260 14300BE5 		str	r3, [fp, #-20]
+  97:../main.c     **** 	dst = (unsigned char *) 0x0c200000;
+ 3182              		.loc 1 97 0
+ 3183 0264 C236A0E3 		mov	r3, #203423744
+ 3184 0268 18300BE5 		str	r3, [fp, #-24]
+  98:../main.c     **** 
+  99:../main.c     **** 	for( i=0; i<0x9600; i++ )
+ 3185              		.loc 1 99 0
+ 3186 026c 0030A0E3 		mov	r3, #0
+ 3187 0270 10300BE5 		str	r3, [fp, #-16]
+ 3188 0274 0A0000EA 		b	.L8
+ 3189              	.L9:
+ 100:../main.c     **** 		dst[i] = src[i];
+ 3190              		.loc 1 100 0 discriminator 2
+ 3191 0278 18201BE5 		ldr	r2, [fp, #-24]
+ 3192 027c 10301BE5 		ldr	r3, [fp, #-16]
+ 3193 0280 033082E0 		add	r3, r2, r3
+ 3194 0284 14101BE5 		ldr	r1, [fp, #-20]
+ 3195 0288 10201BE5 		ldr	r2, [fp, #-16]
+ 3196 028c 022081E0 		add	r2, r1, r2
+ 3197 0290 0020D2E5 		ldrb	r2, [r2, #0]	@ zero_extendqisi2
+ 3198 0294 0020C3E5 		strb	r2, [r3, #0]
+  99:../main.c     **** 	for( i=0; i<0x9600; i++ )
+ 3199              		.loc 1 99 0 discriminator 2
+ 3200 0298 10301BE5 		ldr	r3, [fp, #-16]
+ 3201 029c 013083E2 		add	r3, r3, #1
+ 3202 02a0 10300BE5 		str	r3, [fp, #-16]
+ 3203              	.L8:
+  99:../main.c     **** 	for( i=0; i<0x9600; i++ )
+ 3204              		.loc 1 99 0 is_stmt 0 discriminator 1
+ 3205 02a4 10201BE5 		ldr	r2, [fp, #-16]
+ 3206 02a8 10309FE5 		ldr	r3, .L10
+ 3207 02ac 030052E1 		cmp	r2, r3
+ 3208 02b0 F0FFFF9A 		bls	.L9
+ 101:../main.c     **** }
+ 3209              		.loc 1 101 0 is_stmt 1
+ 3210 02b4 0CD04BE2 		sub	sp, fp, #12
+ 3211 02b8 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3212 02bc 1EFF2FE1 		bx	lr
+ 3213              	.L11:
+ 3214              		.align	2
+ 3215              	.L10:
+ 3216 02c0 FF950000 		.word	38399
+ 3217              		.cfi_endproc
+ 3218              	.LFE2:
+ 3220              		.global	video
+ 3221              		.bss
+ 3222              		.align	2
+ 3225              	video:
+ 3226 0000 00000000 		.space	4
+ 3227              		.text
+ 3228              		.align	2
+ 3229              		.global	timer0_isr
+ 3231              	timer0_isr:
+ 3232              	.LFB3:
+ 102:../main.c     **** unsigned int video = 0;
+ 103:../main.c     **** void timer0_isr(void){
+ 3233              		.loc 1 103 0
+ 3234              		.cfi_startproc
+ 3235              		@ Interrupt Service Routine.
+ 3236              		@ args = 0, pretend = 0, frame = 0
+ 3237              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3238 02c4 04C02DE5 		str	ip, [sp, #-4]!
+ 3239 02c8 0DC0A0E1 		mov	ip, sp
+ 3240              	.LCFI6:
+ 3241              		.cfi_def_cfa_register 12
+ 3242 02cc 0FD82DE9 		stmfd	sp!, {r0, r1, r2, r3, fp, ip, lr, pc}
+ 3243 02d0 04B04CE2 		sub	fp, ip, #4
+ 3244              		.cfi_offset 14, -8
+ 3245              		.cfi_offset 13, -12
+ 3246              		.cfi_offset 11, -16
+ 3247              		.cfi_offset 3, -20
+ 3248              		.cfi_offset 2, -24
+ 3249              		.cfi_offset 1, -28
+ 3250              		.cfi_offset 0, -32
+ 3251              	.LCFI7:
+ 3252              		.cfi_def_cfa 11, 4
+ 104:../main.c     **** 	/* rPDATG registro de datos que permite escribir o leer del puerto.*/
+ 105:../main.c     **** 	rPDATG =(0x1<<7);
+ 3253              		.loc 1 105 0
+ 3254 02d4 98309FE5 		ldr	r3, .L15
+ 3255 02d8 8020A0E3 		mov	r2, #128
+ 3256 02dc 002083E5 		str	r2, [r3, #0]
+ 106:../main.c     **** 	if((rPDATG &(0x1<<7)) == 0)
+ 3257              		.loc 1 106 0
+ 3258 02e0 8C309FE5 		ldr	r3, .L15
+ 3259 02e4 003093E5 		ldr	r3, [r3, #0]
+ 3260 02e8 803003E2 		and	r3, r3, #128
+ 3261 02ec 000053E3 		cmp	r3, #0
+ 3262 02f0 0600001A 		bne	.L13
+ 107:../main.c     **** 		putImageNoDMA(0x0C400000+ video*0x10000);
+ 3263              		.loc 1 107 0
+ 3264 02f4 7C309FE5 		ldr	r3, .L15+4
+ 3265 02f8 003093E5 		ldr	r3, [r3, #0]
+ 3266 02fc 313D83E2 		add	r3, r3, #3136
+ 3267 0300 0338A0E1 		mov	r3, r3, asl #16
+ 3268 0304 0300A0E1 		mov	r0, r3
+ 3269 0308 FEFFFFEB 		bl	putImageNoDMA
+ 3270 030c 050000EA 		b	.L14
+ 3271              	.L13:
+ 108:../main.c     **** 	//video*0x10000
+ 109:../main.c     **** 	//video*0x0c200000
+ 110:../main.c     **** 	else putImageDMA(0x0C400000+video*0x10000);//creo que esto se va a salir del "array"
+ 3272              		.loc 1 110 0
+ 3273 0310 60309FE5 		ldr	r3, .L15+4
+ 3274 0314 003093E5 		ldr	r3, [r3, #0]
+ 3275 0318 313D83E2 		add	r3, r3, #3136
+ 3276 031c 0338A0E1 		mov	r3, r3, asl #16
+ 3277 0320 0300A0E1 		mov	r0, r3
+ 3278 0324 FEFFFFEB 		bl	putImageDMA
+ 3279              	.L14:
+ 111:../main.c     ****  /**
+ 112:../main.c     ****   * las 36 imágenes y con el script que permite cargarlas en memoria del ARM
+ 113:../main.c     ****   *  a partir de la dirección 0xC400000.
+ 114:../main.c     ****   **/
+ 115:../main.c     **** 	video = (video +1)%36;
+ 3280              		.loc 1 115 0
+ 3281 0328 48309FE5 		ldr	r3, .L15+4
+ 3282 032c 003093E5 		ldr	r3, [r3, #0]
+ 3283 0330 011083E2 		add	r1, r3, #1
+ 3284 0334 40309FE5 		ldr	r3, .L15+8
+ 3285 0338 912383E0 		umull	r2, r3, r1, r3
+ 3286 033c A321A0E1 		mov	r2, r3, lsr #3
+ 3287 0340 0230A0E1 		mov	r3, r2
+ 3288 0344 8331A0E1 		mov	r3, r3, asl #3
+ 3289 0348 023083E0 		add	r3, r3, r2
+ 3290 034c 0331A0E1 		mov	r3, r3, asl #2
+ 3291 0350 012063E0 		rsb	r2, r3, r1
+ 3292 0354 1C309FE5 		ldr	r3, .L15+4
+ 3293 0358 002083E5 		str	r2, [r3, #0]
+ 116:../main.c     **** 	ic_cleanflag(INT_TIMER0);
+ 3294              		.loc 1 116 0
+ 3295 035c 0D00A0E3 		mov	r0, #13
+ 3296 0360 FEFFFFEB 		bl	ic_cleanflag
+ 117:../main.c     **** }
+ 3297              		.loc 1 117 0
+ 3298 0364 1CD04BE2 		sub	sp, fp, #28
+ 3299 0368 0F689DE8 		ldmfd	sp, {r0, r1, r2, r3, fp, sp, lr}
+ 3300 036c 04C09DE4 		ldmfd	sp!, {ip}
+ 3301 0370 04F05EE2 		subs	pc, lr, #4
+ 3302              	.L16:
+ 3303              		.align	2
+ 3304              	.L15:
+ 3305 0374 4400D201 		.word	30539844
+ 3306 0378 00000000 		.word	video
+ 3307 037c 398EE338 		.word	954437177
+ 3308              		.cfi_endproc
+ 3309              	.LFE3:
+ 3311              		.align	2
+ 3312              		.global	setup
+ 3314              	setup:
+ 3315              	.LFB4:
+ 118:../main.c     **** 
+ 119:../main.c     **** int setup(void)
+ 120:../main.c     **** {
+ 3316              		.loc 1 120 0
+ 3317              		.cfi_startproc
+ 3318              		@ Function supports interworking.
+ 3319              		@ args = 0, pretend = 0, frame = 0
+ 3320              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3321 0380 0DC0A0E1 		mov	ip, sp
+ 3322              	.LCFI8:
+ 3323              		.cfi_def_cfa_register 12
+ 3324 0384 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3325 0388 04B04CE2 		sub	fp, ip, #4
+ 3326              		.cfi_offset 14, -8
+ 3327              		.cfi_offset 13, -12
+ 3328              		.cfi_offset 11, -16
+ 3329              	.LCFI9:
+ 3330              		.cfi_def_cfa 11, 4
+ 121:../main.c     ****     sys_init();
+ 3331              		.loc 1 121 0
+ 3332 038c FEFFFFEB 		bl	sys_init
+ 122:../main.c     ****     uart0_init();
+ 3333              		.loc 1 122 0
+ 3334 0390 FEFFFFEB 		bl	uart0_init
+ 123:../main.c     ****     lcd_init();
+ 3335              		.loc 1 123 0
+ 3336 0394 FEFFFFEB 		bl	lcd_init
+ 124:../main.c     ****     zdma0_init();
+ 3337              		.loc 1 124 0
+ 3338 0398 FEFFFFEB 		bl	zdma0_init
+ 125:../main.c     **** 
+ 126:../main.c     **** /* Configurar los puertos, el controlador de interrupciones y el timer0 para que genere interrupcio
+ 127:../main.c     ****     portG_conf(7,INPUT);
+ 3339              		.loc 1 127 0
+ 3340 039c 0700A0E3 		mov	r0, #7
+ 3341 03a0 0010A0E3 		mov	r1, #0
+ 3342 03a4 FEFFFFEB 		bl	portG_conf
+ 128:../main.c     ****     portG_eint_trig(7,FALLING);
+ 3343              		.loc 1 128 0
+ 3344 03a8 0700A0E3 		mov	r0, #7
+ 3345 03ac 0210A0E3 		mov	r1, #2
+ 3346 03b0 FEFFFFEB 		bl	portG_eint_trig
+ 129:../main.c     ****     portG_conf_pup(7,1);
+ 3347              		.loc 1 129 0
+ 3348 03b4 0700A0E3 		mov	r0, #7
+ 3349 03b8 0110A0E3 		mov	r1, #1
+ 3350 03bc FEFFFFEB 		bl	portG_conf_pup
+ 130:../main.c     **** 
+ 131:../main.c     ****     rPCOND = 0xAAAA;
+ 3351              		.loc 1 131 0
+ 3352 03c0 9C309FE5 		ldr	r3, .L18
+ 3353 03c4 9C209FE5 		ldr	r2, .L18+4
+ 3354 03c8 002083E5 		str	r2, [r3, #0]
+ 132:../main.c     ****     rPUPD = 0x0;
+ 3355              		.loc 1 132 0
+ 3356 03cc 98309FE5 		ldr	r3, .L18+8
+ 3357 03d0 0020A0E3 		mov	r2, #0
+ 3358 03d4 002083E5 		str	r2, [r3, #0]
+ 133:../main.c     **** 
+ 134:../main.c     ****     //Igual que en la practica 4
+ 135:../main.c     ****     ic_conf_irq(1, VEC);
+ 3359              		.loc 1 135 0
+ 3360 03d8 0100A0E3 		mov	r0, #1
+ 3361 03dc 0010A0E3 		mov	r1, #0
+ 3362 03e0 FEFFFFEB 		bl	ic_conf_irq
+ 136:../main.c     **** 	ic_conf_fiq(0);
+ 3363              		.loc 1 136 0
+ 3364 03e4 0000A0E3 		mov	r0, #0
+ 3365 03e8 FEFFFFEB 		bl	ic_conf_fiq
+ 137:../main.c     **** 	ic_conf_line(INT_TIMER0, IRQ);
+ 3366              		.loc 1 137 0
+ 3367 03ec 0D00A0E3 		mov	r0, #13
+ 3368 03f0 0010A0E3 		mov	r1, #0
+ 3369 03f4 FEFFFFEB 		bl	ic_conf_line
+ 138:../main.c     **** 	ic_enable(INT_TIMER0);
+ 3370              		.loc 1 138 0
+ 3371 03f8 0D00A0E3 		mov	r0, #13
+ 3372 03fc FEFFFFEB 		bl	ic_enable
+ 139:../main.c     **** 
+ 140:../main.c     **** 	tmr_set_prescaler(0,255);
+ 3373              		.loc 1 140 0
+ 3374 0400 0000A0E3 		mov	r0, #0
+ 3375 0404 FF10A0E3 		mov	r1, #255
+ 3376 0408 FEFFFFEB 		bl	tmr_set_prescaler
+ 141:../main.c     **** 	tmr_set_divider(0, D1_4);
+ 3377              		.loc 1 141 0
+ 3378 040c 0000A0E3 		mov	r0, #0
+ 3379 0410 0110A0E3 		mov	r1, #1
+ 3380 0414 FEFFFFEB 		bl	tmr_set_divider
+ 142:../main.c     **** 	tmr_set_count(TIMER0, 6250, 255);
+ 3381              		.loc 1 142 0
+ 3382 0418 0000A0E3 		mov	r0, #0
+ 3383 041c 4C109FE5 		ldr	r1, .L18+12
+ 3384 0420 FF20A0E3 		mov	r2, #255
+ 3385 0424 FEFFFFEB 		bl	tmr_set_count
+ 143:../main.c     **** 
+ 144:../main.c     **** 	tmr_update(TIMER0);
+ 3386              		.loc 1 144 0
+ 3387 0428 0000A0E3 		mov	r0, #0
+ 3388 042c FEFFFFEB 		bl	tmr_update
+ 145:../main.c     **** 	tmr_set_mode(0, RELOAD);
+ 3389              		.loc 1 145 0
+ 3390 0430 0000A0E3 		mov	r0, #0
+ 3391 0434 0110A0E3 		mov	r1, #1
+ 3392 0438 FEFFFFEB 		bl	tmr_set_mode
+ 146:../main.c     **** 	tmr_start(TIMER0);
+ 3393              		.loc 1 146 0
+ 3394 043c 0000A0E3 		mov	r0, #0
+ 3395 0440 FEFFFFEB 		bl	tmr_start
+ 147:../main.c     **** 
+ 148:../main.c     **** 	pISR_TIMER0 = (unsigned) timer0_isr;
+ 3396              		.loc 1 148 0
+ 3397 0444 28309FE5 		ldr	r3, .L18+16
+ 3398 0448 28209FE5 		ldr	r2, .L18+20
+ 3399 044c 002083E5 		str	r2, [r3, #0]
+ 149:../main.c     ****     return 0;
+ 3400              		.loc 1 149 0
+ 3401 0450 0030A0E3 		mov	r3, #0
+ 150:../main.c     **** }
+ 3402              		.loc 1 150 0
+ 3403 0454 0300A0E1 		mov	r0, r3
+ 3404 0458 0CD04BE2 		sub	sp, fp, #12
+ 3405 045c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 3406 0460 1EFF2FE1 		bx	lr
+ 3407              	.L19:
+ 3408              		.align	2
+ 3409              	.L18:
+ 3410 0464 1C00D201 		.word	30539804
+ 3411 0468 AAAA0000 		.word	43690
+ 3412 046c 2400D201 		.word	30539812
+ 3413 0470 6A180000 		.word	6250
+ 3414 0474 54FF7F0C 		.word	209715028
+ 3415 0478 00000000 		.word	timer0_isr
+ 3416              		.cfi_endproc
+ 3417              	.LFE4:
+ 3419              		.align	2
+ 3420              		.global	main
+ 3422              	main:
+ 3423              	.LFB5:
+ 151:../main.c     **** 
+ 152:../main.c     **** 
+ 153:../main.c     **** void main( void )
+ 154:../main.c     **** {
+ 3424              		.loc 1 154 0
+ 3425              		.cfi_startproc
+ 3426              		@ Function supports interworking.
+ 3427              		@ args = 0, pretend = 0, frame = 8
+ 3428              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3429 047c 0DC0A0E1 		mov	ip, sp
+ 3430              	.LCFI10:
+ 3431              		.cfi_def_cfa_register 12
+ 3432 0480 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 3433 0484 04B04CE2 		sub	fp, ip, #4
+ 3434              		.cfi_offset 14, -8
+ 3435              		.cfi_offset 13, -12
+ 3436              		.cfi_offset 11, -16
+ 3437              	.LCFI11:
+ 3438              		.cfi_def_cfa 11, 4
+ 3439 0488 08D04DE2 		sub	sp, sp, #8
+ 155:../main.c     **** 	unsigned int num = 0;
+ 3440              		.loc 1 155 0
+ 3441 048c 0030A0E3 		mov	r3, #0
+ 3442 0490 10300BE5 		str	r3, [fp, #-16]
+ 156:../main.c     **** 
+ 157:../main.c     **** 	setup();
+ 3443              		.loc 1 157 0
+ 3444 0494 FEFFFFEB 		bl	setup
+ 3445              	.L21:
+ 158:../main.c     **** 
+ 159:../main.c     **** 	while( 1 )
+ 160:../main.c     **** 		{
+ 161:../main.c     **** 		uart0_putint( num++ );
+ 3446              		.loc 1 161 0 discriminator 1
+ 3447 0498 10301BE5 		ldr	r3, [fp, #-16]
+ 3448 049c 10201BE5 		ldr	r2, [fp, #-16]
+ 3449 04a0 012082E2 		add	r2, r2, #1
+ 3450 04a4 10200BE5 		str	r2, [fp, #-16]
+ 3451 04a8 0300A0E1 		mov	r0, r3
+ 3452 04ac FEFFFFEB 		bl	uart0_putint
+ 162:../main.c     **** 		uart0_putchar( '\n' );
+ 3453              		.loc 1 162 0 discriminator 1
+ 3454 04b0 0A00A0E3 		mov	r0, #10
+ 3455 04b4 FEFFFFEB 		bl	uart0_putchar
+ 163:../main.c     **** 		}
+ 3456              		.loc 1 163 0 discriminator 1
+ 3457 04b8 F6FFFFEA 		b	.L21
+ 3458              		.cfi_endproc
+ 3459              	.LFE5:
+ 3461              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:2933   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:2936   .text:00000000 sys_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3008   .text:000000a8 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3025   .text:000000e0 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3028   .text:000000e0 lcd_init
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3124   .text:000001d0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3157   .text:00000248 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3160   .text:00000248 putImageNoDMA
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3216   .text:000002c0 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3225   .bss:00000000 video
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3222   .bss:00000000 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3228   .text:000002c4 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3231   .text:000002c4 timer0_isr
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3305   .text:00000374 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3311   .text:00000380 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3314   .text:00000380 setup
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3410   .text:00000464 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3419   .text:0000047c $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccIkwunu.s:3422   .text:0000047c main
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+putImageDMA
+ic_cleanflag
+uart0_init
+zdma0_init
+portG_conf
+portG_eint_trig
+portG_conf_pup
+ic_conf_irq
+ic_conf_fiq
+ic_conf_line
+ic_enable
+tmr_set_prescaler
+tmr_set_divider
+tmr_set_count
+tmr_update
+tmr_set_mode
+tmr_start
+uart0_putint
+uart0_putchar

@@ -1,0 +1,205 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"utils.c"
+  21              	.Ltext0:
+  22              		.file 1 "../utils.c"
+ 1877              		.align	2
+ 1880              	delayLoopCount:
+ 1881 0000 90010000 		.word	400
+ 1882              		.global	__aeabi_idiv
+ 1883              		.text
+ 1884              		.align	2
+ 1885              		.global	Delay
+ 1887              	Delay:
+ 1888              	.LFB0:
+   1:../utils.c    **** /*-------------------------------------------------------------------
+   2:../utils.c    **** **
+   3:../utils.c    **** **  Fichero:
+   4:../utils.c    **** **    utils.c
+   5:../utils.c    **** **
+   6:../utils.c    **** **    Estructura de Computadores
+   7:../utils.c    **** **    Dpto. de Arquitectura de Computadores y Automática
+   8:../utils.c    **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../utils.c    **** **
+  10:../utils.c    **** **  Propósito:
+  11:../utils.c    **** **    Contiene las implementaciones de funciones auxiliares
+  12:../utils.c    **** **
+  13:../utils.c    **** **  Notas de diseño:
+  14:../utils.c    **** **    Equivale al fichero homónimo usado en Fundamentos de Computadores 
+  15:../utils.c    **** **
+  16:../utils.c    **** **-----------------------------------------------------------------*/
+  17:../utils.c    **** 
+  18:../utils.c    **** #include "44b.h"
+  19:../utils.c    **** #include "44blib.h"
+  20:../utils.c    **** #define MCLK 64000000
+  21:../utils.c    **** 
+  22:../utils.c    **** //--------------------------------SYSTEM---------------------------------//
+  23:../utils.c    **** static int delayLoopCount=400;
+  24:../utils.c    **** 
+  25:../utils.c    **** void Delay(int time)
+  26:../utils.c    **** // time=0: adjust the Delay function by WatchDog timer.//
+  27:../utils.c    **** // time>0: the number of loop time//
+  28:../utils.c    **** // 100us resolution.//
+  29:../utils.c    **** {
+ 1889              		.loc 1 29 0
+ 1890              		.cfi_startproc
+ 1891              		@ Function supports interworking.
+ 1892              		@ args = 0, pretend = 0, frame = 16
+ 1893              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1894 0000 0DC0A0E1 		mov	ip, sp
+ 1895              	.LCFI0:
+ 1896              		.cfi_def_cfa_register 12
+ 1897 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1898 0008 04B04CE2 		sub	fp, ip, #4
+ 1899              		.cfi_offset 14, -8
+ 1900              		.cfi_offset 13, -12
+ 1901              		.cfi_offset 11, -16
+ 1902              	.LCFI1:
+ 1903              		.cfi_def_cfa 11, 4
+ 1904 000c 10D04DE2 		sub	sp, sp, #16
+ 1905 0010 18000BE5 		str	r0, [fp, #-24]
+  30:../utils.c    **** 	int i,adjust=0;
+ 1906              		.loc 1 30 0
+ 1907 0014 0030A0E3 		mov	r3, #0
+ 1908 0018 14300BE5 		str	r3, [fp, #-20]
+  31:../utils.c    **** 	if(time==0)
+ 1909              		.loc 1 31 0
+ 1910 001c 18301BE5 		ldr	r3, [fp, #-24]
+ 1911 0020 000053E3 		cmp	r3, #0
+ 1912 0024 2100001A 		bne	.L3
+  32:../utils.c    **** 	{
+  33:../utils.c    **** 		time=200;
+ 1913              		.loc 1 33 0
+ 1914 0028 C830A0E3 		mov	r3, #200
+ 1915 002c 18300BE5 		str	r3, [fp, #-24]
+  34:../utils.c    **** 		adjust=1;
+ 1916              		.loc 1 34 0
+ 1917 0030 0130A0E3 		mov	r3, #1
+ 1918 0034 14300BE5 		str	r3, [fp, #-20]
+  35:../utils.c    **** 		delayLoopCount=400;
+ 1919              		.loc 1 35 0
+ 1920 0038 D8309FE5 		ldr	r3, .L8
+ 1921 003c 192EA0E3 		mov	r2, #400
+ 1922 0040 002083E5 		str	r2, [r3, #0]
+  36:../utils.c    **** 		rWTCON=((MCLK/1000000-1)<<8)|(2<<3);	// 1M/64,Watch-dog,nRESET,interrupt disable//
+ 1923              		.loc 1 36 0
+ 1924 0044 D0309FE5 		ldr	r3, .L8+4
+ 1925 0048 D0209FE5 		ldr	r2, .L8+8
+ 1926 004c 002083E5 		str	r2, [r3, #0]
+  37:../utils.c    **** 		rWTDAT=0xffff;
+ 1927              		.loc 1 37 0
+ 1928 0050 CC309FE5 		ldr	r3, .L8+12
+ 1929 0054 CC209FE5 		ldr	r2, .L8+16
+ 1930 0058 002083E5 		str	r2, [r3, #0]
+  38:../utils.c    **** 		rWTCNT=0xffff;
+ 1931              		.loc 1 38 0
+ 1932 005c C8309FE5 		ldr	r3, .L8+20
+ 1933 0060 C0209FE5 		ldr	r2, .L8+16
+ 1934 0064 002083E5 		str	r2, [r3, #0]
+  39:../utils.c    **** 		rWTCON=((MCLK/1000000-1)<<8)|(2<<3)|(1<<5); // 1M/64,Watch-dog enable,nRESET,interrupt disable //
+ 1935              		.loc 1 39 0
+ 1936 0068 AC309FE5 		ldr	r3, .L8+4
+ 1937 006c BC209FE5 		ldr	r2, .L8+24
+ 1938 0070 002083E5 		str	r2, [r3, #0]
+  40:../utils.c    **** 	}
+  41:../utils.c    **** 	for(;time>0;time--)
+ 1939              		.loc 1 41 0
+ 1940 0074 0D0000EA 		b	.L3
+ 1941              	.L6:
+  42:../utils.c    **** 		for(i=0;i<delayLoopCount;i++);
+ 1942              		.loc 1 42 0
+ 1943 0078 0030A0E3 		mov	r3, #0
+ 1944 007c 10300BE5 		str	r3, [fp, #-16]
+ 1945 0080 020000EA 		b	.L4
+ 1946              	.L5:
+ 1947              		.loc 1 42 0 is_stmt 0 discriminator 2
+ 1948 0084 10301BE5 		ldr	r3, [fp, #-16]
+ 1949 0088 013083E2 		add	r3, r3, #1
+ 1950 008c 10300BE5 		str	r3, [fp, #-16]
+ 1951              	.L4:
+ 1952              		.loc 1 42 0 discriminator 1
+ 1953 0090 80309FE5 		ldr	r3, .L8
+ 1954 0094 003093E5 		ldr	r3, [r3, #0]
+ 1955 0098 10201BE5 		ldr	r2, [fp, #-16]
+ 1956 009c 030052E1 		cmp	r2, r3
+ 1957 00a0 F7FFFFBA 		blt	.L5
+  41:../utils.c    **** 	for(;time>0;time--)
+ 1958              		.loc 1 41 0 is_stmt 1
+ 1959 00a4 18301BE5 		ldr	r3, [fp, #-24]
+ 1960 00a8 013043E2 		sub	r3, r3, #1
+ 1961 00ac 18300BE5 		str	r3, [fp, #-24]
+ 1962              	.L3:
+  41:../utils.c    **** 	for(;time>0;time--)
+ 1963              		.loc 1 41 0 is_stmt 0 discriminator 1
+ 1964 00b0 18301BE5 		ldr	r3, [fp, #-24]
+ 1965 00b4 000053E3 		cmp	r3, #0
+ 1966 00b8 EEFFFFCA 		bgt	.L6
+  43:../utils.c    **** 	if(adjust==1)
+ 1967              		.loc 1 43 0 is_stmt 1
+ 1968 00bc 14301BE5 		ldr	r3, [fp, #-20]
+ 1969 00c0 010053E3 		cmp	r3, #1
+ 1970 00c4 1000001A 		bne	.L1
+  44:../utils.c    **** 	{
+  45:../utils.c    **** 		rWTCON=((MCLK/1000000-1)<<8)|(2<<3);
+ 1971              		.loc 1 45 0
+ 1972 00c8 4C309FE5 		ldr	r3, .L8+4
+ 1973 00cc 4C209FE5 		ldr	r2, .L8+8
+ 1974 00d0 002083E5 		str	r2, [r3, #0]
+  46:../utils.c    **** 		i=0xffff-rWTCNT;   //  1count/16us?????????//
+ 1975              		.loc 1 46 0
+ 1976 00d4 50309FE5 		ldr	r3, .L8+20
+ 1977 00d8 003093E5 		ldr	r3, [r3, #0]
+ 1978 00dc FF3C63E2 		rsb	r3, r3, #65280
+ 1979 00e0 FF3083E2 		add	r3, r3, #255
+ 1980 00e4 10300BE5 		str	r3, [fp, #-16]
+  47:../utils.c    **** 		delayLoopCount=8000000/(i*64);	//400*100/(i*64/200)   //
+ 1981              		.loc 1 47 0
+ 1982 00e8 10301BE5 		ldr	r3, [fp, #-16]
+ 1983 00ec 0333A0E1 		mov	r3, r3, asl #6
+ 1984 00f0 3C009FE5 		ldr	r0, .L8+28
+ 1985 00f4 0310A0E1 		mov	r1, r3
+ 1986 00f8 FEFFFFEB 		bl	__aeabi_idiv
+ 1987 00fc 0030A0E1 		mov	r3, r0
+ 1988 0100 0320A0E1 		mov	r2, r3
+ 1989 0104 0C309FE5 		ldr	r3, .L8
+ 1990 0108 002083E5 		str	r2, [r3, #0]
+ 1991              	.L1:
+  48:../utils.c    **** 	}
+  49:../utils.c    **** }
+ 1992              		.loc 1 49 0
+ 1993 010c 0CD04BE2 		sub	sp, fp, #12
+ 1994 0110 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1995 0114 1EFF2FE1 		bx	lr
+ 1996              	.L9:
+ 1997              		.align	2
+ 1998              	.L8:
+ 1999 0118 00000000 		.word	delayLoopCount
+ 2000 011c 0000D301 		.word	30605312
+ 2001 0120 103F0000 		.word	16144
+ 2002 0124 0400D301 		.word	30605316
+ 2003 0128 FFFF0000 		.word	65535
+ 2004 012c 0800D301 		.word	30605320
+ 2005 0130 303F0000 		.word	16176
+ 2006 0134 00127A00 		.word	8000000
+ 2007              		.cfi_endproc
+ 2008              	.LFE0:
+ 2010              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 utils.c
+C:\Users\USUARI~1\AppData\Local\Temp\ccSm1Idf.s:1877   .data:00000000 $d
+C:\Users\USUARI~1\AppData\Local\Temp\ccSm1Idf.s:1880   .data:00000000 delayLoopCount
+C:\Users\USUARI~1\AppData\Local\Temp\ccSm1Idf.s:1884   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\ccSm1Idf.s:1887   .text:00000000 Delay
+C:\Users\USUARI~1\AppData\Local\Temp\ccSm1Idf.s:1999   .text:00000118 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+__aeabi_idiv

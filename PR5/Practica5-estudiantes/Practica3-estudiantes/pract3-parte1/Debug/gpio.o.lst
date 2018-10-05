@@ -1,0 +1,1008 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"gpio.c"
+  21              	.Ltext0:
+  22              		.file 1 "../gpio.c"
+ 1882              		.align	2
+ 1883              		.global	portB_conf
+ 1885              	portB_conf:
+ 1886              	.LFB0:
+   1:../gpio.c     **** #include "44b.h"
+   2:../gpio.c     **** #include "44blib.h"
+   3:../gpio.c     **** #include "gpio.h"
+   4:../gpio.c     **** 
+   5:../gpio.c     **** /* Port B interface implementation */
+   6:../gpio.c     **** 
+   7:../gpio.c     **** int portB_conf(int pin, enum port_mode mode)
+   8:../gpio.c     **** {
+ 1887              		.loc 1 8 0
+ 1888              		.cfi_startproc
+ 1889              		@ Function supports interworking.
+ 1890              		@ args = 0, pretend = 0, frame = 16
+ 1891              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1892 0000 0DC0A0E1 		mov	ip, sp
+ 1893              	.LCFI0:
+ 1894              		.cfi_def_cfa_register 12
+ 1895 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1896 0008 04B04CE2 		sub	fp, ip, #4
+ 1897              		.cfi_offset 14, -8
+ 1898              		.cfi_offset 13, -12
+ 1899              		.cfi_offset 11, -16
+ 1900              	.LCFI1:
+ 1901              		.cfi_def_cfa 11, 4
+ 1902 000c 10D04DE2 		sub	sp, sp, #16
+ 1903 0010 18000BE5 		str	r0, [fp, #-24]
+ 1904 0014 0130A0E1 		mov	r3, r1
+ 1905 0018 19304BE5 		strb	r3, [fp, #-25]
+   9:../gpio.c     **** 	int ret = 0;
+ 1906              		.loc 1 9 0
+ 1907 001c 0030A0E3 		mov	r3, #0
+ 1908 0020 10300BE5 		str	r3, [fp, #-16]
+  10:../gpio.c     **** 	if (pin < 0 || pin > 10)
+ 1909              		.loc 1 10 0
+ 1910 0024 18301BE5 		ldr	r3, [fp, #-24]
+ 1911 0028 000053E3 		cmp	r3, #0
+ 1912 002c 020000BA 		blt	.L2
+ 1913              		.loc 1 10 0 is_stmt 0 discriminator 1
+ 1914 0030 18301BE5 		ldr	r3, [fp, #-24]
+ 1915 0034 0A0053E3 		cmp	r3, #10
+ 1916 0038 010000DA 		ble	.L3
+ 1917              	.L2:
+  11:../gpio.c     **** 		return -1;
+ 1918              		.loc 1 11 0 is_stmt 1
+ 1919 003c 0030E0E3 		mvn	r3, #0
+ 1920 0040 1B0000EA 		b	.L4
+ 1921              	.L3:
+  12:../gpio.c     **** 
+  13:../gpio.c     **** 	if (mode == SIGOUT){
+ 1922              		.loc 1 13 0
+ 1923 0044 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 1924 0048 020053E3 		cmp	r3, #2
+ 1925 004c 0800001A 		bne	.L5
+  14:../gpio.c     **** 		rPCONB |=(0x1<<pin);
+ 1926              		.loc 1 14 0
+ 1927 0050 6C309FE5 		ldr	r3, .L8
+ 1928 0054 68209FE5 		ldr	r2, .L8
+ 1929 0058 001092E5 		ldr	r1, [r2, #0]
+ 1930 005c 0100A0E3 		mov	r0, #1
+ 1931 0060 18201BE5 		ldr	r2, [fp, #-24]
+ 1932 0064 1022A0E1 		mov	r2, r0, asl r2
+ 1933 0068 022081E1 		orr	r2, r1, r2
+ 1934 006c 002083E5 		str	r2, [r3, #0]
+ 1935 0070 0E0000EA 		b	.L6
+ 1936              	.L5:
+  15:../gpio.c     **** 		//COMPLETAR: Configurar el pin del puerto B
+  16:../gpio.c     **** 		//para que salga la senal correspondiente del controlador de memoria
+  17:../gpio.c     **** 
+  18:../gpio.c     **** 	}
+  19:../gpio.c     **** 	else if (mode == OUTPUT){
+ 1937              		.loc 1 19 0
+ 1938 0074 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 1939 0078 010053E3 		cmp	r3, #1
+ 1940 007c 0900001A 		bne	.L7
+  20:../gpio.c     **** 		rPCONB &=~(0x1<<pin);
+ 1941              		.loc 1 20 0
+ 1942 0080 3C309FE5 		ldr	r3, .L8
+ 1943 0084 38209FE5 		ldr	r2, .L8
+ 1944 0088 001092E5 		ldr	r1, [r2, #0]
+ 1945 008c 0100A0E3 		mov	r0, #1
+ 1946 0090 18201BE5 		ldr	r2, [fp, #-24]
+ 1947 0094 1022A0E1 		mov	r2, r0, asl r2
+ 1948 0098 0220E0E1 		mvn	r2, r2
+ 1949 009c 022001E0 		and	r2, r1, r2
+ 1950 00a0 002083E5 		str	r2, [r3, #0]
+ 1951 00a4 010000EA 		b	.L6
+ 1952              	.L7:
+  21:../gpio.c     **** 		///COMPLETAR: Configurar el pin del puerto B
+  22:../gpio.c     **** 		//para que sea de salida
+  23:../gpio.c     **** 
+  24:../gpio.c     **** 	}
+  25:../gpio.c     **** 	else
+  26:../gpio.c     **** 		ret = -1;
+ 1953              		.loc 1 26 0
+ 1954 00a8 0030E0E3 		mvn	r3, #0
+ 1955 00ac 10300BE5 		str	r3, [fp, #-16]
+ 1956              	.L6:
+  27:../gpio.c     **** 
+  28:../gpio.c     **** 	return ret;
+ 1957              		.loc 1 28 0
+ 1958 00b0 10301BE5 		ldr	r3, [fp, #-16]
+ 1959              	.L4:
+  29:../gpio.c     **** }
+ 1960              		.loc 1 29 0
+ 1961 00b4 0300A0E1 		mov	r0, r3
+ 1962 00b8 0CD04BE2 		sub	sp, fp, #12
+ 1963 00bc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1964 00c0 1EFF2FE1 		bx	lr
+ 1965              	.L9:
+ 1966              		.align	2
+ 1967              	.L8:
+ 1968 00c4 0800D201 		.word	30539784
+ 1969              		.cfi_endproc
+ 1970              	.LFE0:
+ 1972              		.align	2
+ 1973              		.global	portB_write
+ 1975              	portB_write:
+ 1976              	.LFB1:
+  30:../gpio.c     **** 
+  31:../gpio.c     **** int portB_write(int pin, enum digital val)
+  32:../gpio.c     **** {
+ 1977              		.loc 1 32 0
+ 1978              		.cfi_startproc
+ 1979              		@ Function supports interworking.
+ 1980              		@ args = 0, pretend = 0, frame = 8
+ 1981              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1982 00c8 0DC0A0E1 		mov	ip, sp
+ 1983              	.LCFI2:
+ 1984              		.cfi_def_cfa_register 12
+ 1985 00cc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1986 00d0 04B04CE2 		sub	fp, ip, #4
+ 1987              		.cfi_offset 14, -8
+ 1988              		.cfi_offset 13, -12
+ 1989              		.cfi_offset 11, -16
+ 1990              	.LCFI3:
+ 1991              		.cfi_def_cfa 11, 4
+ 1992 00d4 08D04DE2 		sub	sp, sp, #8
+ 1993 00d8 10000BE5 		str	r0, [fp, #-16]
+ 1994 00dc 0130A0E1 		mov	r3, r1
+ 1995 00e0 11304BE5 		strb	r3, [fp, #-17]
+  33:../gpio.c     **** 	if (pin < 0 || pin > 10)
+ 1996              		.loc 1 33 0
+ 1997 00e4 10301BE5 		ldr	r3, [fp, #-16]
+ 1998 00e8 000053E3 		cmp	r3, #0
+ 1999 00ec 020000BA 		blt	.L11
+ 2000              		.loc 1 33 0 is_stmt 0 discriminator 1
+ 2001 00f0 10301BE5 		ldr	r3, [fp, #-16]
+ 2002 00f4 0A0053E3 		cmp	r3, #10
+ 2003 00f8 010000DA 		ble	.L12
+ 2004              	.L11:
+  34:../gpio.c     **** 		return -1;
+ 2005              		.loc 1 34 0 is_stmt 1
+ 2006 00fc 0030E0E3 		mvn	r3, #0
+ 2007 0100 1A0000EA 		b	.L13
+ 2008              	.L12:
+  35:../gpio.c     **** 
+  36:../gpio.c     **** 	if (val < 0 || val > 1)
+ 2009              		.loc 1 36 0
+ 2010 0104 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2011 0108 010053E3 		cmp	r3, #1
+ 2012 010c 0100009A 		bls	.L14
+  37:../gpio.c     **** 		return -1;
+ 2013              		.loc 1 37 0
+ 2014 0110 0030E0E3 		mvn	r3, #0
+ 2015 0114 150000EA 		b	.L13
+ 2016              	.L14:
+  38:../gpio.c     **** 
+  39:../gpio.c     **** 	if (val){
+ 2017              		.loc 1 39 0
+ 2018 0118 11305BE5 		ldrb	r3, [fp, #-17]	@ zero_extendqisi2
+ 2019 011c 000053E3 		cmp	r3, #0
+ 2020 0120 0800000A 		beq	.L15
+  40:../gpio.c     **** 		//COMPLETAR: poner en el pin del puerto B
+  41:../gpio.c     **** 		//el valor adecuado para que el led se apague
+  42:../gpio.c     **** 		rPDATB |=(0x1<<pin);
+ 2021              		.loc 1 42 0
+ 2022 0124 54309FE5 		ldr	r3, .L17
+ 2023 0128 50209FE5 		ldr	r2, .L17
+ 2024 012c 001092E5 		ldr	r1, [r2, #0]
+ 2025 0130 0100A0E3 		mov	r0, #1
+ 2026 0134 10201BE5 		ldr	r2, [fp, #-16]
+ 2027 0138 1022A0E1 		mov	r2, r0, asl r2
+ 2028 013c 022081E1 		orr	r2, r1, r2
+ 2029 0140 002083E5 		str	r2, [r3, #0]
+ 2030 0144 080000EA 		b	.L16
+ 2031              	.L15:
+  43:../gpio.c     **** 
+  44:../gpio.c     **** 	}
+  45:../gpio.c     **** 	else{
+  46:../gpio.c     **** 		rPDATB &=~(0x1<<pin);
+ 2032              		.loc 1 46 0
+ 2033 0148 30309FE5 		ldr	r3, .L17
+ 2034 014c 2C209FE5 		ldr	r2, .L17
+ 2035 0150 001092E5 		ldr	r1, [r2, #0]
+ 2036 0154 0100A0E3 		mov	r0, #1
+ 2037 0158 10201BE5 		ldr	r2, [fp, #-16]
+ 2038 015c 1022A0E1 		mov	r2, r0, asl r2
+ 2039 0160 0220E0E1 		mvn	r2, r2
+ 2040 0164 022001E0 		and	r2, r1, r2
+ 2041 0168 002083E5 		str	r2, [r3, #0]
+ 2042              	.L16:
+  47:../gpio.c     **** 		//COMPLETAR: poner en el pin del puerto B
+  48:../gpio.c     **** 		//el valor adecuado para que el led se encienda
+  49:../gpio.c     **** 
+  50:../gpio.c     **** 
+  51:../gpio.c     **** 	}
+  52:../gpio.c     **** 	return 0;
+ 2043              		.loc 1 52 0
+ 2044 016c 0030A0E3 		mov	r3, #0
+ 2045              	.L13:
+  53:../gpio.c     **** }
+ 2046              		.loc 1 53 0
+ 2047 0170 0300A0E1 		mov	r0, r3
+ 2048 0174 0CD04BE2 		sub	sp, fp, #12
+ 2049 0178 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2050 017c 1EFF2FE1 		bx	lr
+ 2051              	.L18:
+ 2052              		.align	2
+ 2053              	.L17:
+ 2054 0180 0C00D201 		.word	30539788
+ 2055              		.cfi_endproc
+ 2056              	.LFE1:
+ 2058              		.align	2
+ 2059              		.global	portG_conf
+ 2061              	portG_conf:
+ 2062              	.LFB2:
+  54:../gpio.c     **** 
+  55:../gpio.c     **** /* Port G interface implementation */
+  56:../gpio.c     **** 
+  57:../gpio.c     **** int portG_conf(int pin, enum port_mode mode)
+  58:../gpio.c     **** {
+ 2063              		.loc 1 58 0
+ 2064              		.cfi_startproc
+ 2065              		@ Function supports interworking.
+ 2066              		@ args = 0, pretend = 0, frame = 16
+ 2067              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2068 0184 0DC0A0E1 		mov	ip, sp
+ 2069              	.LCFI4:
+ 2070              		.cfi_def_cfa_register 12
+ 2071 0188 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2072 018c 04B04CE2 		sub	fp, ip, #4
+ 2073              		.cfi_offset 14, -8
+ 2074              		.cfi_offset 13, -12
+ 2075              		.cfi_offset 11, -16
+ 2076              	.LCFI5:
+ 2077              		.cfi_def_cfa 11, 4
+ 2078 0190 10D04DE2 		sub	sp, sp, #16
+ 2079 0194 18000BE5 		str	r0, [fp, #-24]
+ 2080 0198 0130A0E1 		mov	r3, r1
+ 2081 019c 19304BE5 		strb	r3, [fp, #-25]
+  59:../gpio.c     **** 	//La variable pos indica el primer bit del registro de control del puerto G que corresponde al pin
+  60:../gpio.c     **** 	int pos  = pin*2;
+ 2082              		.loc 1 60 0
+ 2083 01a0 18301BE5 		ldr	r3, [fp, #-24]
+ 2084 01a4 8330A0E1 		mov	r3, r3, asl #1
+ 2085 01a8 10300BE5 		str	r3, [fp, #-16]
+  61:../gpio.c     **** 
+  62:../gpio.c     **** 	if (pin < 0 || pin > 7)
+ 2086              		.loc 1 62 0
+ 2087 01ac 18301BE5 		ldr	r3, [fp, #-24]
+ 2088 01b0 000053E3 		cmp	r3, #0
+ 2089 01b4 020000BA 		blt	.L20
+ 2090              		.loc 1 62 0 is_stmt 0 discriminator 1
+ 2091 01b8 18301BE5 		ldr	r3, [fp, #-24]
+ 2092 01bc 070053E3 		cmp	r3, #7
+ 2093 01c0 010000DA 		ble	.L21
+ 2094              	.L20:
+  63:../gpio.c     **** 		return -1;
+ 2095              		.loc 1 63 0 is_stmt 1
+ 2096 01c4 0030E0E3 		mvn	r3, #0
+ 2097 01c8 410000EA 		b	.L22
+ 2098              	.L21:
+  64:../gpio.c     **** 
+  65:../gpio.c     **** 	switch (mode) {
+ 2099              		.loc 1 65 0
+ 2100 01cc 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 2101 01d0 030053E3 		cmp	r3, #3
+ 2102 01d4 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 2103 01d8 3A0000EA 		b	.L23
+ 2104              	.L28:
+ 2105 01dc EC010000 		.word	.L24
+ 2106 01e0 14020000 		.word	.L25
+ 2107 01e4 5C020000 		.word	.L26
+ 2108 01e8 A4020000 		.word	.L27
+ 2109              	.L24:
+  66:../gpio.c     **** 		case INPUT:
+  67:../gpio.c     **** 
+  68:../gpio.c     **** 			//COMPLETAR: Configurar el pin del puerto G
+  69:../gpio.c     **** 			//para que sea de entrada
+  70:../gpio.c     **** 			rPCONG &= ~(0x3<<pos);
+ 2110              		.loc 1 70 0
+ 2111 01ec F0309FE5 		ldr	r3, .L30
+ 2112 01f0 EC209FE5 		ldr	r2, .L30
+ 2113 01f4 001092E5 		ldr	r1, [r2, #0]
+ 2114 01f8 0300A0E3 		mov	r0, #3
+ 2115 01fc 10201BE5 		ldr	r2, [fp, #-16]
+ 2116 0200 1022A0E1 		mov	r2, r0, asl r2
+ 2117 0204 0220E0E1 		mvn	r2, r2
+ 2118 0208 022001E0 		and	r2, r1, r2
+ 2119 020c 002083E5 		str	r2, [r3, #0]
+  71:../gpio.c     **** 
+  72:../gpio.c     **** 			break;
+ 2120              		.loc 1 72 0
+ 2121 0210 2E0000EA 		b	.L29
+ 2122              	.L25:
+  73:../gpio.c     **** 		case OUTPUT:
+  74:../gpio.c     **** 			//COMPLETAR: Configurar el pin del puerto G
+  75:../gpio.c     **** 			//para que sea de salida
+  76:../gpio.c     **** 			rPCONG &= ~(0x3<<pos);
+ 2123              		.loc 1 76 0
+ 2124 0214 C8309FE5 		ldr	r3, .L30
+ 2125 0218 C4209FE5 		ldr	r2, .L30
+ 2126 021c 001092E5 		ldr	r1, [r2, #0]
+ 2127 0220 0300A0E3 		mov	r0, #3
+ 2128 0224 10201BE5 		ldr	r2, [fp, #-16]
+ 2129 0228 1022A0E1 		mov	r2, r0, asl r2
+ 2130 022c 0220E0E1 		mvn	r2, r2
+ 2131 0230 022001E0 		and	r2, r1, r2
+ 2132 0234 002083E5 		str	r2, [r3, #0]
+  77:../gpio.c     **** 			rPCONG |= (0x1<<pos);
+ 2133              		.loc 1 77 0
+ 2134 0238 A4309FE5 		ldr	r3, .L30
+ 2135 023c A0209FE5 		ldr	r2, .L30
+ 2136 0240 001092E5 		ldr	r1, [r2, #0]
+ 2137 0244 0100A0E3 		mov	r0, #1
+ 2138 0248 10201BE5 		ldr	r2, [fp, #-16]
+ 2139 024c 1022A0E1 		mov	r2, r0, asl r2
+ 2140 0250 022081E1 		orr	r2, r1, r2
+ 2141 0254 002083E5 		str	r2, [r3, #0]
+  78:../gpio.c     **** 
+  79:../gpio.c     **** 			break;
+ 2142              		.loc 1 79 0
+ 2143 0258 1C0000EA 		b	.L29
+ 2144              	.L26:
+  80:../gpio.c     **** 		case SIGOUT:
+  81:../gpio.c     **** 			//COMPLETAR: Configurar el pin del puerto G
+  82:../gpio.c     **** 			//para que salga la señal interna correspondiente
+  83:../gpio.c     **** 			rPCONG &= ~(0x3<<pos);
+ 2145              		.loc 1 83 0
+ 2146 025c 80309FE5 		ldr	r3, .L30
+ 2147 0260 7C209FE5 		ldr	r2, .L30
+ 2148 0264 001092E5 		ldr	r1, [r2, #0]
+ 2149 0268 0300A0E3 		mov	r0, #3
+ 2150 026c 10201BE5 		ldr	r2, [fp, #-16]
+ 2151 0270 1022A0E1 		mov	r2, r0, asl r2
+ 2152 0274 0220E0E1 		mvn	r2, r2
+ 2153 0278 022001E0 		and	r2, r1, r2
+ 2154 027c 002083E5 		str	r2, [r3, #0]
+  84:../gpio.c     **** 			rPCONG|= (0x2<<pos);
+ 2155              		.loc 1 84 0
+ 2156 0280 5C309FE5 		ldr	r3, .L30
+ 2157 0284 58209FE5 		ldr	r2, .L30
+ 2158 0288 001092E5 		ldr	r1, [r2, #0]
+ 2159 028c 0200A0E3 		mov	r0, #2
+ 2160 0290 10201BE5 		ldr	r2, [fp, #-16]
+ 2161 0294 1022A0E1 		mov	r2, r0, asl r2
+ 2162 0298 022081E1 		orr	r2, r1, r2
+ 2163 029c 002083E5 		str	r2, [r3, #0]
+  85:../gpio.c     **** 
+  86:../gpio.c     **** 			break;
+ 2164              		.loc 1 86 0
+ 2165 02a0 0A0000EA 		b	.L29
+ 2166              	.L27:
+  87:../gpio.c     **** 		case EINT:
+  88:../gpio.c     **** 			//COMPLETAR: Configurar el pin del puerto G
+  89:../gpio.c     **** 			//para habilitar la generación de interrupciones externas
+  90:../gpio.c     **** 			rPCONG |= (0x3 << pos);
+ 2167              		.loc 1 90 0
+ 2168 02a4 38309FE5 		ldr	r3, .L30
+ 2169 02a8 34209FE5 		ldr	r2, .L30
+ 2170 02ac 001092E5 		ldr	r1, [r2, #0]
+ 2171 02b0 0300A0E3 		mov	r0, #3
+ 2172 02b4 10201BE5 		ldr	r2, [fp, #-16]
+ 2173 02b8 1022A0E1 		mov	r2, r0, asl r2
+ 2174 02bc 022081E1 		orr	r2, r1, r2
+ 2175 02c0 002083E5 		str	r2, [r3, #0]
+  91:../gpio.c     **** 
+  92:../gpio.c     **** 			break;
+ 2176              		.loc 1 92 0
+ 2177 02c4 010000EA 		b	.L29
+ 2178              	.L23:
+  93:../gpio.c     **** 		default:
+  94:../gpio.c     **** 			return -1;
+ 2179              		.loc 1 94 0
+ 2180 02c8 0030E0E3 		mvn	r3, #0
+ 2181 02cc 000000EA 		b	.L22
+ 2182              	.L29:
+  95:../gpio.c     **** 	}
+  96:../gpio.c     **** 
+  97:../gpio.c     **** 	return 0;
+ 2183              		.loc 1 97 0
+ 2184 02d0 0030A0E3 		mov	r3, #0
+ 2185              	.L22:
+  98:../gpio.c     **** }
+ 2186              		.loc 1 98 0
+ 2187 02d4 0300A0E1 		mov	r0, r3
+ 2188 02d8 0CD04BE2 		sub	sp, fp, #12
+ 2189 02dc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2190 02e0 1EFF2FE1 		bx	lr
+ 2191              	.L31:
+ 2192              		.align	2
+ 2193              	.L30:
+ 2194 02e4 4000D201 		.word	30539840
+ 2195              		.cfi_endproc
+ 2196              	.LFE2:
+ 2198              		.align	2
+ 2199              		.global	portG_eint_trig
+ 2201              	portG_eint_trig:
+ 2202              	.LFB3:
+  99:../gpio.c     **** 
+ 100:../gpio.c     **** int portG_eint_trig(int pin, enum trigger trig)
+ 101:../gpio.c     **** {
+ 2203              		.loc 1 101 0
+ 2204              		.cfi_startproc
+ 2205              		@ Function supports interworking.
+ 2206              		@ args = 0, pretend = 0, frame = 16
+ 2207              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2208 02e8 0DC0A0E1 		mov	ip, sp
+ 2209              	.LCFI6:
+ 2210              		.cfi_def_cfa_register 12
+ 2211 02ec 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2212 02f0 04B04CE2 		sub	fp, ip, #4
+ 2213              		.cfi_offset 14, -8
+ 2214              		.cfi_offset 13, -12
+ 2215              		.cfi_offset 11, -16
+ 2216              	.LCFI7:
+ 2217              		.cfi_def_cfa 11, 4
+ 2218 02f4 10D04DE2 		sub	sp, sp, #16
+ 2219 02f8 18000BE5 		str	r0, [fp, #-24]
+ 2220 02fc 0130A0E1 		mov	r3, r1
+ 2221 0300 19304BE5 		strb	r3, [fp, #-25]
+ 102:../gpio.c     **** 	//La variable pos indica el primer bit del registro EXTINT del puerto G que corresponde al pin
+ 103:../gpio.c     **** 	int pos = pin*4;
+ 2222              		.loc 1 103 0
+ 2223 0304 18301BE5 		ldr	r3, [fp, #-24]
+ 2224 0308 0331A0E1 		mov	r3, r3, asl #2
+ 2225 030c 10300BE5 		str	r3, [fp, #-16]
+ 104:../gpio.c     **** 
+ 105:../gpio.c     **** 	if (pin < 0 || pin > 7)
+ 2226              		.loc 1 105 0
+ 2227 0310 18301BE5 		ldr	r3, [fp, #-24]
+ 2228 0314 000053E3 		cmp	r3, #0
+ 2229 0318 020000BA 		blt	.L33
+ 2230              		.loc 1 105 0 is_stmt 0 discriminator 1
+ 2231 031c 18301BE5 		ldr	r3, [fp, #-24]
+ 2232 0320 070053E3 		cmp	r3, #7
+ 2233 0324 010000DA 		ble	.L34
+ 2234              	.L33:
+ 106:../gpio.c     **** 		return -1;
+ 2235              		.loc 1 106 0 is_stmt 1
+ 2236 0328 0030E0E3 		mvn	r3, #0
+ 2237 032c 5D0000EA 		b	.L35
+ 2238              	.L34:
+ 107:../gpio.c     **** 
+ 108:../gpio.c     **** 	switch (trig) {
+ 2239              		.loc 1 108 0
+ 2240 0330 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 2241 0334 040053E3 		cmp	r3, #4
+ 2242 0338 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 2243 033c 560000EA 		b	.L36
+ 2244              	.L42:
+ 2245 0340 54030000 		.word	.L37
+ 2246 0344 7C030000 		.word	.L38
+ 2247 0348 C4030000 		.word	.L39
+ 2248 034c 0C040000 		.word	.L40
+ 2249 0350 54040000 		.word	.L41
+ 2250              	.L37:
+ 109:../gpio.c     **** 		case LLOW:
+ 110:../gpio.c     **** 			// COMPLETAR: configurar el pin del puerto G para que genere interrupciones externas por nivel b
+ 111:../gpio.c     **** 			rEXTINT &= ~(0x7<<pos);
+ 2251              		.loc 1 111 0
+ 2252 0354 5C319FE5 		ldr	r3, .L44
+ 2253 0358 58219FE5 		ldr	r2, .L44
+ 2254 035c 001092E5 		ldr	r1, [r2, #0]
+ 2255 0360 0700A0E3 		mov	r0, #7
+ 2256 0364 10201BE5 		ldr	r2, [fp, #-16]
+ 2257 0368 1022A0E1 		mov	r2, r0, asl r2
+ 2258 036c 0220E0E1 		mvn	r2, r2
+ 2259 0370 022001E0 		and	r2, r1, r2
+ 2260 0374 002083E5 		str	r2, [r3, #0]
+ 112:../gpio.c     **** 			break;
+ 2261              		.loc 1 112 0
+ 2262 0378 490000EA 		b	.L43
+ 2263              	.L38:
+ 113:../gpio.c     **** 		case LHIGH:
+ 114:../gpio.c     **** 			// COMPLETAR: configurar el pin del puerto G para que genere interrupciones externas por nivel a
+ 115:../gpio.c     **** 			rEXTINT &= ~(0x7<<pos);
+ 2264              		.loc 1 115 0
+ 2265 037c 34319FE5 		ldr	r3, .L44
+ 2266 0380 30219FE5 		ldr	r2, .L44
+ 2267 0384 001092E5 		ldr	r1, [r2, #0]
+ 2268 0388 0700A0E3 		mov	r0, #7
+ 2269 038c 10201BE5 		ldr	r2, [fp, #-16]
+ 2270 0390 1022A0E1 		mov	r2, r0, asl r2
+ 2271 0394 0220E0E1 		mvn	r2, r2
+ 2272 0398 022001E0 		and	r2, r1, r2
+ 2273 039c 002083E5 		str	r2, [r3, #0]
+ 116:../gpio.c     **** 			rEXTINT |= (0x1<<pos);
+ 2274              		.loc 1 116 0
+ 2275 03a0 10319FE5 		ldr	r3, .L44
+ 2276 03a4 0C219FE5 		ldr	r2, .L44
+ 2277 03a8 001092E5 		ldr	r1, [r2, #0]
+ 2278 03ac 0100A0E3 		mov	r0, #1
+ 2279 03b0 10201BE5 		ldr	r2, [fp, #-16]
+ 2280 03b4 1022A0E1 		mov	r2, r0, asl r2
+ 2281 03b8 022081E1 		orr	r2, r1, r2
+ 2282 03bc 002083E5 		str	r2, [r3, #0]
+ 117:../gpio.c     **** 
+ 118:../gpio.c     **** 			break;
+ 2283              		.loc 1 118 0
+ 2284 03c0 370000EA 		b	.L43
+ 2285              	.L39:
+ 119:../gpio.c     **** 		case FALLING:
+ 120:../gpio.c     **** 			// COMPLETAR: configurar el pin del puerto G para que el pin genere interrupciones externas por 
+ 121:../gpio.c     **** 			rEXTINT &= ~(0x7<<pos);
+ 2286              		.loc 1 121 0
+ 2287 03c4 EC309FE5 		ldr	r3, .L44
+ 2288 03c8 E8209FE5 		ldr	r2, .L44
+ 2289 03cc 001092E5 		ldr	r1, [r2, #0]
+ 2290 03d0 0700A0E3 		mov	r0, #7
+ 2291 03d4 10201BE5 		ldr	r2, [fp, #-16]
+ 2292 03d8 1022A0E1 		mov	r2, r0, asl r2
+ 2293 03dc 0220E0E1 		mvn	r2, r2
+ 2294 03e0 022001E0 		and	r2, r1, r2
+ 2295 03e4 002083E5 		str	r2, [r3, #0]
+ 122:../gpio.c     **** 			rEXTINT |= (0x2<<pos);
+ 2296              		.loc 1 122 0
+ 2297 03e8 C8309FE5 		ldr	r3, .L44
+ 2298 03ec C4209FE5 		ldr	r2, .L44
+ 2299 03f0 001092E5 		ldr	r1, [r2, #0]
+ 2300 03f4 0200A0E3 		mov	r0, #2
+ 2301 03f8 10201BE5 		ldr	r2, [fp, #-16]
+ 2302 03fc 1022A0E1 		mov	r2, r0, asl r2
+ 2303 0400 022081E1 		orr	r2, r1, r2
+ 2304 0404 002083E5 		str	r2, [r3, #0]
+ 123:../gpio.c     **** 
+ 124:../gpio.c     **** 			break;
+ 2305              		.loc 1 124 0
+ 2306 0408 250000EA 		b	.L43
+ 2307              	.L40:
+ 125:../gpio.c     **** 		case RISING:
+ 126:../gpio.c     **** 			// COMPLETAR: configurar el pin del puerto G para que el pin genere interrupciones externas por 
+ 127:../gpio.c     **** 			rEXTINT &= ~(0x7<<pos);
+ 2308              		.loc 1 127 0
+ 2309 040c A4309FE5 		ldr	r3, .L44
+ 2310 0410 A0209FE5 		ldr	r2, .L44
+ 2311 0414 001092E5 		ldr	r1, [r2, #0]
+ 2312 0418 0700A0E3 		mov	r0, #7
+ 2313 041c 10201BE5 		ldr	r2, [fp, #-16]
+ 2314 0420 1022A0E1 		mov	r2, r0, asl r2
+ 2315 0424 0220E0E1 		mvn	r2, r2
+ 2316 0428 022001E0 		and	r2, r1, r2
+ 2317 042c 002083E5 		str	r2, [r3, #0]
+ 128:../gpio.c     **** 			rEXTINT |= (0x4<<pos);
+ 2318              		.loc 1 128 0
+ 2319 0430 80309FE5 		ldr	r3, .L44
+ 2320 0434 7C209FE5 		ldr	r2, .L44
+ 2321 0438 001092E5 		ldr	r1, [r2, #0]
+ 2322 043c 0400A0E3 		mov	r0, #4
+ 2323 0440 10201BE5 		ldr	r2, [fp, #-16]
+ 2324 0444 1022A0E1 		mov	r2, r0, asl r2
+ 2325 0448 022081E1 		orr	r2, r1, r2
+ 2326 044c 002083E5 		str	r2, [r3, #0]
+ 129:../gpio.c     **** 
+ 130:../gpio.c     **** 			break;
+ 2327              		.loc 1 130 0
+ 2328 0450 130000EA 		b	.L43
+ 2329              	.L41:
+ 131:../gpio.c     **** 		case EDGE:
+ 132:../gpio.c     **** 			// COMPLETAR: configurar el pin del puerto G para que el pin genere interrupciones externas por 
+ 133:../gpio.c     **** 			rEXTINT &= ~(0x7<<pos);
+ 2330              		.loc 1 133 0
+ 2331 0454 5C309FE5 		ldr	r3, .L44
+ 2332 0458 58209FE5 		ldr	r2, .L44
+ 2333 045c 001092E5 		ldr	r1, [r2, #0]
+ 2334 0460 0700A0E3 		mov	r0, #7
+ 2335 0464 10201BE5 		ldr	r2, [fp, #-16]
+ 2336 0468 1022A0E1 		mov	r2, r0, asl r2
+ 2337 046c 0220E0E1 		mvn	r2, r2
+ 2338 0470 022001E0 		and	r2, r1, r2
+ 2339 0474 002083E5 		str	r2, [r3, #0]
+ 134:../gpio.c     **** 			rEXTINT |= (0x6<<pos);
+ 2340              		.loc 1 134 0
+ 2341 0478 38309FE5 		ldr	r3, .L44
+ 2342 047c 34209FE5 		ldr	r2, .L44
+ 2343 0480 001092E5 		ldr	r1, [r2, #0]
+ 2344 0484 0600A0E3 		mov	r0, #6
+ 2345 0488 10201BE5 		ldr	r2, [fp, #-16]
+ 2346 048c 1022A0E1 		mov	r2, r0, asl r2
+ 2347 0490 022081E1 		orr	r2, r1, r2
+ 2348 0494 002083E5 		str	r2, [r3, #0]
+ 135:../gpio.c     **** 
+ 136:../gpio.c     **** 			break;
+ 2349              		.loc 1 136 0
+ 2350 0498 010000EA 		b	.L43
+ 2351              	.L36:
+ 137:../gpio.c     **** 		default:
+ 138:../gpio.c     **** 			return -1;
+ 2352              		.loc 1 138 0
+ 2353 049c 0030E0E3 		mvn	r3, #0
+ 2354 04a0 000000EA 		b	.L35
+ 2355              	.L43:
+ 139:../gpio.c     **** 	}
+ 140:../gpio.c     **** 	return 0;
+ 2356              		.loc 1 140 0
+ 2357 04a4 0030A0E3 		mov	r3, #0
+ 2358              	.L35:
+ 141:../gpio.c     **** }
+ 2359              		.loc 1 141 0
+ 2360 04a8 0300A0E1 		mov	r0, r3
+ 2361 04ac 0CD04BE2 		sub	sp, fp, #12
+ 2362 04b0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2363 04b4 1EFF2FE1 		bx	lr
+ 2364              	.L45:
+ 2365              		.align	2
+ 2366              	.L44:
+ 2367 04b8 5000D201 		.word	30539856
+ 2368              		.cfi_endproc
+ 2369              	.LFE3:
+ 2371              		.align	2
+ 2372              		.global	portG_read
+ 2374              	portG_read:
+ 2375              	.LFB4:
+ 142:../gpio.c     **** 
+ 143:../gpio.c     **** 
+ 144:../gpio.c     **** int portG_read(int pin, enum digital* val)
+ 145:../gpio.c     **** {
+ 2376              		.loc 1 145 0
+ 2377              		.cfi_startproc
+ 2378              		@ Function supports interworking.
+ 2379              		@ args = 0, pretend = 0, frame = 16
+ 2380              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2381 04bc 0DC0A0E1 		mov	ip, sp
+ 2382              	.LCFI8:
+ 2383              		.cfi_def_cfa_register 12
+ 2384 04c0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2385 04c4 04B04CE2 		sub	fp, ip, #4
+ 2386              		.cfi_offset 14, -8
+ 2387              		.cfi_offset 13, -12
+ 2388              		.cfi_offset 11, -16
+ 2389              	.LCFI9:
+ 2390              		.cfi_def_cfa 11, 4
+ 2391 04c8 10D04DE2 		sub	sp, sp, #16
+ 2392 04cc 18000BE5 		str	r0, [fp, #-24]
+ 2393 04d0 1C100BE5 		str	r1, [fp, #-28]
+ 146:../gpio.c     **** 	int pos = pin*2;
+ 2394              		.loc 1 146 0
+ 2395 04d4 18301BE5 		ldr	r3, [fp, #-24]
+ 2396 04d8 8330A0E1 		mov	r3, r3, asl #1
+ 2397 04dc 10300BE5 		str	r3, [fp, #-16]
+ 147:../gpio.c     **** 
+ 148:../gpio.c     **** 	if (pin < 0 || pin > 7)
+ 2398              		.loc 1 148 0
+ 2399 04e0 18301BE5 		ldr	r3, [fp, #-24]
+ 2400 04e4 000053E3 		cmp	r3, #0
+ 2401 04e8 020000BA 		blt	.L47
+ 2402              		.loc 1 148 0 is_stmt 0 discriminator 1
+ 2403 04ec 18301BE5 		ldr	r3, [fp, #-24]
+ 2404 04f0 070053E3 		cmp	r3, #7
+ 2405 04f4 010000DA 		ble	.L48
+ 2406              	.L47:
+ 149:../gpio.c     **** 		return -1;
+ 2407              		.loc 1 149 0 is_stmt 1
+ 2408 04f8 0030E0E3 		mvn	r3, #0
+ 2409 04fc 190000EA 		b	.L49
+ 2410              	.L48:
+ 150:../gpio.c     **** 
+ 151:../gpio.c     **** 	if (rPCONG & (0x3 << pos))
+ 2411              		.loc 1 151 0
+ 2412 0500 70309FE5 		ldr	r3, .L53
+ 2413 0504 002093E5 		ldr	r2, [r3, #0]
+ 2414 0508 0310A0E3 		mov	r1, #3
+ 2415 050c 10301BE5 		ldr	r3, [fp, #-16]
+ 2416 0510 1133A0E1 		mov	r3, r1, asl r3
+ 2417 0514 033002E0 		and	r3, r2, r3
+ 2418 0518 000053E3 		cmp	r3, #0
+ 2419 051c 0100000A 		beq	.L50
+ 152:../gpio.c     **** 		return -1;
+ 2420              		.loc 1 152 0
+ 2421 0520 0030E0E3 		mvn	r3, #0
+ 2422 0524 0F0000EA 		b	.L49
+ 2423              	.L50:
+ 153:../gpio.c     **** 	//COMPLETAR la condicion del if: comprobar si el pin del registro de datos del puerto G es un 1)
+ 154:../gpio.c     **** 
+ 155:../gpio.c     **** 	if (rPDATG & (0x3 << pos))
+ 2424              		.loc 1 155 0
+ 2425 0528 4C309FE5 		ldr	r3, .L53+4
+ 2426 052c 002093E5 		ldr	r2, [r3, #0]
+ 2427 0530 0310A0E3 		mov	r1, #3
+ 2428 0534 10301BE5 		ldr	r3, [fp, #-16]
+ 2429 0538 1133A0E1 		mov	r3, r1, asl r3
+ 2430 053c 033002E0 		and	r3, r2, r3
+ 2431 0540 000053E3 		cmp	r3, #0
+ 2432 0544 0300000A 		beq	.L51
+ 156:../gpio.c     **** 		*val=HIGH;
+ 2433              		.loc 1 156 0
+ 2434 0548 1C301BE5 		ldr	r3, [fp, #-28]
+ 2435 054c 0120A0E3 		mov	r2, #1
+ 2436 0550 0020C3E5 		strb	r2, [r3, #0]
+ 2437 0554 020000EA 		b	.L52
+ 2438              	.L51:
+ 157:../gpio.c     **** 	else
+ 158:../gpio.c     **** 		*val=LOW;
+ 2439              		.loc 1 158 0
+ 2440 0558 1C301BE5 		ldr	r3, [fp, #-28]
+ 2441 055c 0020A0E3 		mov	r2, #0
+ 2442 0560 0020C3E5 		strb	r2, [r3, #0]
+ 2443              	.L52:
+ 159:../gpio.c     **** 
+ 160:../gpio.c     **** 	return 0;
+ 2444              		.loc 1 160 0
+ 2445 0564 0030A0E3 		mov	r3, #0
+ 2446              	.L49:
+ 161:../gpio.c     **** }
+ 2447              		.loc 1 161 0
+ 2448 0568 0300A0E1 		mov	r0, r3
+ 2449 056c 0CD04BE2 		sub	sp, fp, #12
+ 2450 0570 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2451 0574 1EFF2FE1 		bx	lr
+ 2452              	.L54:
+ 2453              		.align	2
+ 2454              	.L53:
+ 2455 0578 4000D201 		.word	30539840
+ 2456 057c 4400D201 		.word	30539844
+ 2457              		.cfi_endproc
+ 2458              	.LFE4:
+ 2460              		.align	2
+ 2461              		.global	portG_conf_pup
+ 2463              	portG_conf_pup:
+ 2464              	.LFB5:
+ 162:../gpio.c     **** 
+ 163:../gpio.c     **** int portG_conf_pup(int pin, int st)
+ 164:../gpio.c     **** {
+ 2465              		.loc 1 164 0
+ 2466              		.cfi_startproc
+ 2467              		@ Function supports interworking.
+ 2468              		@ args = 0, pretend = 0, frame = 8
+ 2469              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2470 0580 0DC0A0E1 		mov	ip, sp
+ 2471              	.LCFI10:
+ 2472              		.cfi_def_cfa_register 12
+ 2473 0584 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2474 0588 04B04CE2 		sub	fp, ip, #4
+ 2475              		.cfi_offset 14, -8
+ 2476              		.cfi_offset 13, -12
+ 2477              		.cfi_offset 11, -16
+ 2478              	.LCFI11:
+ 2479              		.cfi_def_cfa 11, 4
+ 2480 058c 08D04DE2 		sub	sp, sp, #8
+ 2481 0590 10000BE5 		str	r0, [fp, #-16]
+ 2482 0594 14100BE5 		str	r1, [fp, #-20]
+ 165:../gpio.c     **** 	if (pin < 0 || pin > 7)
+ 2483              		.loc 1 165 0
+ 2484 0598 10301BE5 		ldr	r3, [fp, #-16]
+ 2485 059c 000053E3 		cmp	r3, #0
+ 2486 05a0 020000BA 		blt	.L56
+ 2487              		.loc 1 165 0 is_stmt 0 discriminator 1
+ 2488 05a4 10301BE5 		ldr	r3, [fp, #-16]
+ 2489 05a8 070053E3 		cmp	r3, #7
+ 2490 05ac 010000DA 		ble	.L57
+ 2491              	.L56:
+ 166:../gpio.c     **** 		return -1;
+ 2492              		.loc 1 166 0 is_stmt 1
+ 2493 05b0 0030E0E3 		mvn	r3, #0
+ 2494 05b4 1D0000EA 		b	.L58
+ 2495              	.L57:
+ 167:../gpio.c     **** 
+ 168:../gpio.c     **** 	if (st != 1 && st != 0)
+ 2496              		.loc 1 168 0
+ 2497 05b8 14301BE5 		ldr	r3, [fp, #-20]
+ 2498 05bc 010053E3 		cmp	r3, #1
+ 2499 05c0 0400000A 		beq	.L59
+ 2500              		.loc 1 168 0 is_stmt 0 discriminator 1
+ 2501 05c4 14301BE5 		ldr	r3, [fp, #-20]
+ 2502 05c8 000053E3 		cmp	r3, #0
+ 2503 05cc 0100000A 		beq	.L59
+ 169:../gpio.c     **** 		return -1;
+ 2504              		.loc 1 169 0 is_stmt 1
+ 2505 05d0 0030E0E3 		mvn	r3, #0
+ 2506 05d4 150000EA 		b	.L58
+ 2507              	.L59:
+ 170:../gpio.c     **** 
+ 171:../gpio.c     **** 	if (st == 1){
+ 2508              		.loc 1 171 0
+ 2509 05d8 14301BE5 		ldr	r3, [fp, #-20]
+ 2510 05dc 010053E3 		cmp	r3, #1
+ 2511 05e0 0900001A 		bne	.L60
+ 172:../gpio.c     **** 		rPUPG &=~(0x1<<pin);
+ 2512              		.loc 1 172 0
+ 2513 05e4 54309FE5 		ldr	r3, .L62
+ 2514 05e8 50209FE5 		ldr	r2, .L62
+ 2515 05ec 001092E5 		ldr	r1, [r2, #0]
+ 2516 05f0 0100A0E3 		mov	r0, #1
+ 2517 05f4 10201BE5 		ldr	r2, [fp, #-16]
+ 2518 05f8 1022A0E1 		mov	r2, r0, asl r2
+ 2519 05fc 0220E0E1 		mvn	r2, r2
+ 2520 0600 022001E0 		and	r2, r1, r2
+ 2521 0604 002083E5 		str	r2, [r3, #0]
+ 2522 0608 070000EA 		b	.L61
+ 2523              	.L60:
+ 173:../gpio.c     **** 		//COMPLETAR: activar la resistencia de pull-up del pin del puerto G
+ 174:../gpio.c     **** 
+ 175:../gpio.c     **** 	}
+ 176:../gpio.c     **** 	else{
+ 177:../gpio.c     **** 		rPUPG |=(0x1<<pin);
+ 2524              		.loc 1 177 0
+ 2525 060c 2C309FE5 		ldr	r3, .L62
+ 2526 0610 28209FE5 		ldr	r2, .L62
+ 2527 0614 001092E5 		ldr	r1, [r2, #0]
+ 2528 0618 0100A0E3 		mov	r0, #1
+ 2529 061c 10201BE5 		ldr	r2, [fp, #-16]
+ 2530 0620 1022A0E1 		mov	r2, r0, asl r2
+ 2531 0624 022081E1 		orr	r2, r1, r2
+ 2532 0628 002083E5 		str	r2, [r3, #0]
+ 2533              	.L61:
+ 178:../gpio.c     **** 		//COMPLETAR: desactivar la resistencia de pull-up del pin del puerto G
+ 179:../gpio.c     **** 
+ 180:../gpio.c     **** 	}
+ 181:../gpio.c     **** 	return 0;
+ 2534              		.loc 1 181 0
+ 2535 062c 0030A0E3 		mov	r3, #0
+ 2536              	.L58:
+ 182:../gpio.c     **** }
+ 2537              		.loc 1 182 0
+ 2538 0630 0300A0E1 		mov	r0, r3
+ 2539 0634 0CD04BE2 		sub	sp, fp, #12
+ 2540 0638 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2541 063c 1EFF2FE1 		bx	lr
+ 2542              	.L63:
+ 2543              		.align	2
+ 2544              	.L62:
+ 2545 0640 4800D201 		.word	30539848
+ 2546              		.cfi_endproc
+ 2547              	.LFE5:
+ 2549              		.align	2
+ 2550              		.global	portG_write
+ 2552              	portG_write:
+ 2553              	.LFB6:
+ 183:../gpio.c     **** 
+ 184:../gpio.c     **** 
+ 185:../gpio.c     **** int portG_write(int pin, enum digital val)
+ 186:../gpio.c     **** {
+ 2554              		.loc 1 186 0
+ 2555              		.cfi_startproc
+ 2556              		@ Function supports interworking.
+ 2557              		@ args = 0, pretend = 0, frame = 16
+ 2558              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2559 0644 0DC0A0E1 		mov	ip, sp
+ 2560              	.LCFI12:
+ 2561              		.cfi_def_cfa_register 12
+ 2562 0648 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2563 064c 04B04CE2 		sub	fp, ip, #4
+ 2564              		.cfi_offset 14, -8
+ 2565              		.cfi_offset 13, -12
+ 2566              		.cfi_offset 11, -16
+ 2567              	.LCFI13:
+ 2568              		.cfi_def_cfa 11, 4
+ 2569 0650 10D04DE2 		sub	sp, sp, #16
+ 2570 0654 18000BE5 		str	r0, [fp, #-24]
+ 2571 0658 0130A0E1 		mov	r3, r1
+ 2572 065c 19304BE5 		strb	r3, [fp, #-25]
+ 187:../gpio.c     **** 	int pos = pin*2;
+ 2573              		.loc 1 187 0
+ 2574 0660 18301BE5 		ldr	r3, [fp, #-24]
+ 2575 0664 8330A0E1 		mov	r3, r3, asl #1
+ 2576 0668 10300BE5 		str	r3, [fp, #-16]
+ 188:../gpio.c     **** 
+ 189:../gpio.c     **** 	if (pin < 0 || pin > 7)
+ 2577              		.loc 1 189 0
+ 2578 066c 18301BE5 		ldr	r3, [fp, #-24]
+ 2579 0670 000053E3 		cmp	r3, #0
+ 2580 0674 020000BA 		blt	.L65
+ 2581              		.loc 1 189 0 is_stmt 0 discriminator 1
+ 2582 0678 18301BE5 		ldr	r3, [fp, #-24]
+ 2583 067c 070053E3 		cmp	r3, #7
+ 2584 0680 010000DA 		ble	.L66
+ 2585              	.L65:
+ 190:../gpio.c     **** 		return -1;
+ 2586              		.loc 1 190 0 is_stmt 1
+ 2587 0684 0030E0E3 		mvn	r3, #0
+ 2588 0688 270000EA 		b	.L67
+ 2589              	.L66:
+ 191:../gpio.c     **** 
+ 192:../gpio.c     **** 	if (val < 0 || val > 1)
+ 2590              		.loc 1 192 0
+ 2591 068c 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 2592 0690 010053E3 		cmp	r3, #1
+ 2593 0694 0100009A 		bls	.L68
+ 193:../gpio.c     **** 		return -1;
+ 2594              		.loc 1 193 0
+ 2595 0698 0030E0E3 		mvn	r3, #0
+ 2596 069c 220000EA 		b	.L67
+ 2597              	.L68:
+ 194:../gpio.c     **** 
+ 195:../gpio.c     **** 	if ((rPCONG & (0x3 << pos)) != (0x1 << pos))
+ 2598              		.loc 1 195 0
+ 2599 06a0 94309FE5 		ldr	r3, .L72
+ 2600 06a4 002093E5 		ldr	r2, [r3, #0]
+ 2601 06a8 0310A0E3 		mov	r1, #3
+ 2602 06ac 10301BE5 		ldr	r3, [fp, #-16]
+ 2603 06b0 1133A0E1 		mov	r3, r1, asl r3
+ 2604 06b4 032002E0 		and	r2, r2, r3
+ 2605 06b8 0110A0E3 		mov	r1, #1
+ 2606 06bc 10301BE5 		ldr	r3, [fp, #-16]
+ 2607 06c0 1133A0E1 		mov	r3, r1, asl r3
+ 2608 06c4 030052E1 		cmp	r2, r3
+ 2609 06c8 0100000A 		beq	.L69
+ 196:../gpio.c     **** 		return -1;
+ 2610              		.loc 1 196 0
+ 2611 06cc 0030E0E3 		mvn	r3, #0
+ 2612 06d0 150000EA 		b	.L67
+ 2613              	.L69:
+ 197:../gpio.c     **** 
+ 198:../gpio.c     **** 	if (val)
+ 2614              		.loc 1 198 0
+ 2615 06d4 19305BE5 		ldrb	r3, [fp, #-25]	@ zero_extendqisi2
+ 2616 06d8 000053E3 		cmp	r3, #0
+ 2617 06dc 0800000A 		beq	.L70
+ 199:../gpio.c     **** 		rPDATG |=(0x1<<pos);
+ 2618              		.loc 1 199 0
+ 2619 06e0 58309FE5 		ldr	r3, .L72+4
+ 2620 06e4 54209FE5 		ldr	r2, .L72+4
+ 2621 06e8 001092E5 		ldr	r1, [r2, #0]
+ 2622 06ec 0100A0E3 		mov	r0, #1
+ 2623 06f0 10201BE5 		ldr	r2, [fp, #-16]
+ 2624 06f4 1022A0E1 		mov	r2, r0, asl r2
+ 2625 06f8 022081E1 		orr	r2, r1, r2
+ 2626 06fc 002083E5 		str	r2, [r3, #0]
+ 2627 0700 080000EA 		b	.L71
+ 2628              	.L70:
+ 200:../gpio.c     **** 	else
+ 201:../gpio.c     **** 		rPDATG &=~(0x1<<pos);
+ 2629              		.loc 1 201 0
+ 2630 0704 34309FE5 		ldr	r3, .L72+4
+ 2631 0708 30209FE5 		ldr	r2, .L72+4
+ 2632 070c 001092E5 		ldr	r1, [r2, #0]
+ 2633 0710 0100A0E3 		mov	r0, #1
+ 2634 0714 10201BE5 		ldr	r2, [fp, #-16]
+ 2635 0718 1022A0E1 		mov	r2, r0, asl r2
+ 2636 071c 0220E0E1 		mvn	r2, r2
+ 2637 0720 022001E0 		and	r2, r1, r2
+ 2638 0724 002083E5 		str	r2, [r3, #0]
+ 2639              	.L71:
+ 202:../gpio.c     **** 
+ 203:../gpio.c     **** 	return 0;
+ 2640              		.loc 1 203 0
+ 2641 0728 0030A0E3 		mov	r3, #0
+ 2642              	.L67:
+ 204:../gpio.c     **** }
+ 2643              		.loc 1 204 0
+ 2644 072c 0300A0E1 		mov	r0, r3
+ 2645 0730 0CD04BE2 		sub	sp, fp, #12
+ 2646 0734 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2647 0738 1EFF2FE1 		bx	lr
+ 2648              	.L73:
+ 2649              		.align	2
+ 2650              	.L72:
+ 2651 073c 4000D201 		.word	30539840
+ 2652 0740 4400D201 		.word	30539844
+ 2653              		.cfi_endproc
+ 2654              	.LFE6:
+ 2656              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 gpio.c
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:1882   .text:00000000 $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:1885   .text:00000000 portB_conf
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:1968   .text:000000c4 $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:1972   .text:000000c8 $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:1975   .text:000000c8 portB_write
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2054   .text:00000180 $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2058   .text:00000184 $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2061   .text:00000184 portG_conf
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2105   .text:000001dc $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2111   .text:000001ec $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2194   .text:000002e4 $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2198   .text:000002e8 $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2201   .text:000002e8 portG_eint_trig
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2245   .text:00000340 $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2252   .text:00000354 $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2367   .text:000004b8 $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2371   .text:000004bc $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2374   .text:000004bc portG_read
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2455   .text:00000578 $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2460   .text:00000580 $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2463   .text:00000580 portG_conf_pup
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2545   .text:00000640 $d
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2549   .text:00000644 $a
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2552   .text:00000644 portG_write
+C:\Users\USUARI~1\AppData\Local\Temp\cclDsSlQ.s:2651   .text:0000073c $d
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS
