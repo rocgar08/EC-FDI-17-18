@@ -1,0 +1,59 @@
+   1              	# 1 "../misc.asm"
+   1              	
+   0              	
+   0              	
+   0              	
+   2              	.equ COEF1, 3483
+   3              	.equ COEF2, 11718
+   4              	.equ COEF3, 1183
+   5              	
+   6              	
+   7              	.text
+   8              	.global div16384
+   9              	.global rgb2gray
+  10              	
+  11              	rgb2gray:
+  12              	
+  13              		//Prologo
+  14 0000 70402DE9 		push {r4-r6,lr}
+  15              	
+  16              		//CUERPO*
+  17 0004 0130A0E3 		mov r3,#1 //AUX1
+  18 0008 0140A0E3 		mov r4,#1 //AUX2
+  19              	
+  20 000c 3C509FE5 		ldr r5, = COEF1
+  21 0010 0060D0E5 		ldrb r6,[r0]//pixel R
+  22 0014 950603E0 		mul r3,r5,r6
+  23              	
+  24 0018 34509FE5 		ldr r5, = COEF2
+  25 001c 0160D0E5 		ldrb r6,[r0,#1]//pixel G
+  26 0020 950604E0 		mul r4,r5,r6
+  27 0024 043083E0 		add r3,r3,r4
+  28              	
+  29 0028 28509FE5 		ldr r5, = COEF3
+  30 002c 0260D0E5 		ldrb r6,[r0,#2] //pixel B
+  31 0030 950604E0 		mul r4,r5,r6
+  32 0034 033084E0 		add r3,r4,r3
+  33              	
+  34 0038 0300A0E1 		mov r0,r3
+  35              	
+  36 003c FEFFFFEB 		bl div16384
+  37 0040 7040BDE8 		pop {r4-r6,lr}
+  38 0044 0EF0A0E1 		mov pc,lr
+  39              	div16384:
+  40 0048 2007A0E1 		lsr r0,r0,#14
+  41 004c 0EF0A0E1 		mov pc,lr
+  41      9B0D0000 
+  41      C62D0000 
+  41      9F040000 
+DEFINED SYMBOLS
+         ../misc.asm:2      *ABS*:00000d9b COEF1
+         ../misc.asm:3      *ABS*:00002dc6 COEF2
+         ../misc.asm:4      *ABS*:0000049f COEF3
+         ../misc.asm:39     .text:00000048 div16384
+         ../misc.asm:11     .text:00000000 rgb2gray
+         ../misc.asm:14     .text:00000000 $a
+         ../misc.asm:41     .text:00000050 $d
+                   .debug_aranges:0000000c $d
+
+NO UNDEFINED SYMBOLS
